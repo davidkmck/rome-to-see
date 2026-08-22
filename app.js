@@ -11,11 +11,39 @@ const map = L.map('map', {
   zoomControl: false
 });
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+// Base Map Tile Layers
+const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
   attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
+});
 
+const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  maxZoom: 18,
+  attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+});
+
+// Default to Standard OSM Map
+let isSatellite = false;
+osmLayer.addTo(map);
+
+// Map Toggle Logic
+function toggleBaseMap() {
+  const toggleBtn = document.getElementById('layerToggleBtn');
+
+  if (isSatellite) {
+    map.removeLayer(satelliteLayer);
+    map.addLayer(osmLayer);
+    toggleBtn.innerHTML = '🛰️ Satellite';
+    isSatellite = false;
+  } else {
+    map.removeLayer(osmLayer);
+    map.addLayer(satelliteLayer);
+    toggleBtn.innerHTML = '🗺️ Standard';
+    isSatellite = true;
+  }
+}
+
+window.toggleBaseMap = toggleBaseMap;
 const landmarkGroup = L.layerGroup().addTo(map);
 let homeMarker = null;
 let selectedMarker = null;
