@@ -1,5 +1,5 @@
 {
-  "name": "Rome To See",
+  "name": "Rome 2 C",
   "short_name": "Rome2C",
   "start_url": "./index.html",
   "display": "standalone",
@@ -7,9 +7,10 @@
   "theme_color": "#2c3e50",
   "icons": [
     {
-      "src": "https://leafletjs.com/docs/images/logo.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "src": "./icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
