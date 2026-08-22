@@ -160,15 +160,18 @@
 
   <div id="map"></div>
 
-  <!-- Quick Action Controls -->
-  <div class="controls-overlay">
-    <button class="btn-control" onclick="flyToHome()">
-      🏠 Home
-    </button>
-    <button class="btn-control" onclick="resetMapView()">
-      🇮🇹 Center Rome
-    </button>
-  </div>
+<!-- Floating UI Controls -->
+<div class="controls-overlay">
+  <button class="btn-control" id="layerToggleBtn" onclick="toggleBaseMap()">
+    🛰️ Satellite
+  </button>
+  <button class="btn-control" onclick="flyToHome()">
+    🏠 Home
+  </button>
+  <button class="btn-control" onclick="resetMapView()">
+    🇮🇹 Center Rome
+  </button>
+</div>
 
 <!-- Coordinates & Action Bar -->
 <div id="coordsPanel" class="coords-panel">
