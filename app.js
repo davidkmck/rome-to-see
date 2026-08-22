@@ -31,6 +31,8 @@ const EMOJI_ICONS = {
   mall: '🛍️',
   museum: '🖼️',
   gallery: '🎨',
+  park: '🌳',
+  district: '🍝',
   default: '📍'
 };
 
