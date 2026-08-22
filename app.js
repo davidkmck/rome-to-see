@@ -22,26 +22,36 @@ const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/
   attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
 });
 
-// Default to Standard OSM Map
 let isSatellite = false;
 osmLayer.addTo(map);
 
-// Map Toggle Logic
+// Updated Map Toggle Logic with LocalStorage persistence
 function toggleBaseMap() {
   const toggleBtn = document.getElementById('layerToggleBtn');
 
   if (isSatellite) {
     map.removeLayer(satelliteLayer);
     map.addLayer(osmLayer);
-    toggleBtn.innerHTML = '🛰️ Satellite';
+    if (toggleBtn) toggleBtn.innerHTML = '🛰️ Satellite';
     isSatellite = false;
+    localStorage.setItem('rome_map_type', 'standard');
   } else {
     map.removeLayer(osmLayer);
     map.addLayer(satelliteLayer);
-    toggleBtn.innerHTML = '🗺️ Standard';
+    if (toggleBtn) toggleBtn.innerHTML = '🗺️ Standard';
     isSatellite = true;
+    localStorage.setItem('rome_map_type', 'satellite');
   }
 }
+
+// Loads saved tile layer state on startup
+function loadSavedMapType() {
+  const savedType = localStorage.getItem('rome_map_type');
+  if (savedType === 'satellite') {
+    toggleBaseMap();
+  }
+}
+
 
 window.toggleBaseMap = toggleBaseMap;
 const landmarkGroup = L.layerGroup().addTo(map);
