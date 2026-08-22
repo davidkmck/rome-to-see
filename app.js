@@ -265,6 +265,34 @@ document.getElementById('coordsInput').addEventListener('paste', (e) => {
   setTimeout(() => handleManualCoordInput(), 100);
 });
 
+// Set home directly from the currently active selected coordinates
+function setHomeFromSelected() {
+  if (!currentCoords) {
+    alert("Tap a location on the map first!");
+    return;
+  }
+  const lat = parseFloat(currentCoords.lat);
+  const lng = parseFloat(currentCoords.lng);
+
+  setHomeLocation(lat, lng);
+
+  // Brief UI feedback on the button
+  const btn = document.getElementById('setHomeBtn');
+  btn.innerText = '✅';
+  setTimeout(() => { btn.innerText = '🏠'; }, 1500);
+}
+
+// Updated Map Click Interaction
+map.on('click', (e) => {
+  const { lat, lng } = e.latlng;
+  setSelectedPoint(lat, lng);
+});
+
+// Remove old desktop contextmenu popup listener to keep touch clear
+map.off('contextmenu');
+
+window.setHomeFromSelected = setHomeFromSelected;
+
 window.handleManualCoordInput = handleManualCoordInput;
 
 window.resetMapView = resetMapView;
