@@ -63,8 +63,64 @@
       background: #f0f0f0;
     }
 
+    /* Selected Coordinates Panel */
+    .coords-panel {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      background: #ffffff;
+      padding: 10px 14px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 90vw;
+    }
+
+    .coords-panel.hidden {
+      display: none;
+    }
+
+    .coords-input {
+      border: 1px solid #dcdfe6;
+      background: #f8f9fa;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-family: monospace;
+      font-size: 13px;
+      color: #2c3e50;
+      width: 170px;
+      text-align: center;
+    }
+
+    .btn-icon {
+      background: #f0f2f5;
+      border: 1px solid #dcdfe6;
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease;
+      text-decoration: none;
+      color: #2c3e50;
+    }
+
+    .btn-icon:hover {
+      background: #e4e7ed;
+    }
+
+    .btn-icon:active {
+      transform: scale(0.95);
+    }
+
     /* Marker Custom Styles */
-    .landmark-marker, .home-marker {
+    .landmark-marker, .home-marker, .selected-marker {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -80,6 +136,19 @@
 
     .home-marker {
       font-size: 26px;
+    }
+
+    /* Context Menu Popup Styling */
+    .popup-btn {
+      width: 100%;
+      padding: 6px 10px;
+      background: #2c3e50;
+      color: #ffffff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
     }
   </style>
 </head>
@@ -97,6 +166,17 @@
     </button>
   </div>
 
+  <!-- Coordinates & Action Bar -->
+  <div id="coordsPanel" class="coords-panel hidden">
+    <input type="text" id="coordsInput" class="coords-input" readonly value="" />
+    <button class="btn-icon" id="copyBtn" title="Copy to Clipboard" onclick="copyCoordsToClipboard()">
+      📋
+    </button>
+    <a id="gmapsLink" class="btn-icon" target="_blank" rel="noopener noreferrer" title="Open in Google Maps">
+      🗺️
+    </a>
+  </div>
+
   <!-- Leaflet JS -->
   <script 
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
@@ -108,7 +188,7 @@
   <script src="landmarks.js"></script>
   <script src="app.js"></script>
 
-  <!-- Service Worker Registration for PWA -->
+  <!-- Service Worker Registration -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
