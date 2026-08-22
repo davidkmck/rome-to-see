@@ -29,6 +29,8 @@ const EMOJI_ICONS = {
   airport: '✈️',
   transit: '🚆',
   mall: '🛍️',
+  museum: '🖼️',
+  gallery: '🎨',
   default: '📍'
 };
 
