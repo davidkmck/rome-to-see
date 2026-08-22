@@ -166,16 +166,25 @@
     </button>
   </div>
 
-  <!-- Coordinates & Action Bar -->
-  <div id="coordsPanel" class="coords-panel hidden">
-    <input type="text" id="coordsInput" class="coords-input" readonly value="" />
-    <button class="btn-icon" id="copyBtn" title="Copy to Clipboard" onclick="copyCoordsToClipboard()">
-      📋
-    </button>
-    <a id="gmapsLink" class="btn-icon" target="_blank" rel="noopener noreferrer" title="Open in Google Maps">
-      🗺️
-    </a>
-  </div>
+<!-- Coordinates & Action Bar -->
+<div id="coordsPanel" class="coords-panel">
+  <input 
+    type="text" 
+    id="coordsInput" 
+    class="coords-input" 
+    placeholder="Paste coords or click map..." 
+    onkeydown="if(event.key === 'Enter') handleManualCoordInput()" 
+  />
+  <button class="btn-icon" id="goBtn" title="Navigate to Coords" onclick="handleManualCoordInput()">
+    🔍
+  </button>
+  <button class="btn-icon" id="copyBtn" title="Copy to Clipboard" onclick="copyCoordsToClipboard()">
+    📋
+  </button>
+  <a id="gmapsLink" class="btn-icon" target="_blank" rel="noopener noreferrer" title="Open in Google Maps">
+    🗺️
+  </a>
+</div>
 
   <!-- Leaflet JS -->
   <script 
