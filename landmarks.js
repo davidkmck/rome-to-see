@@ -1,4 +1,19 @@
 const ROME_LANDMARKS = [
+  // Famous Squares & Steps
+  { name: "Spanish Steps (Piazza di Spagna)", lat: 41.9059, lon: 12.4828, type: "square", desc: "Monumental 135-step staircase leading up to the Trinita dei Monti church." },
+  { name: "Piazza del Popolo", lat: 41.9107, lon: 12.4764, type: "square", desc: "Large urban square featuring an Egyptian obelisk and twin churches." },
+  { name: "Campo de' Fiori", lat: 41.8956, lon: 12.4722, type: "square", desc: "Lively square known for its daily open-air market and nightlife." },
+
+  // Parks & Scenic Views
+  { name: "Villa Borghese Gardens", lat: 41.9128, lon: 12.4852, type: "park", desc: "Expansive landscape park featuring gardens, lakes, and walking paths." },
+  { name: "Janiculum Hill (Gianicolo)", lat: 41.8917, lon: 12.4616, type: "park", desc: "Scenic hill west of the Tiber offering panoramic views across Rome." },
+  { name: "Orange Garden (Giardino degli Aranci)", lat: 41.8848, lon: 12.4797, type: "park", desc: "Quiet park on the Aventine Hill with city vistas and the Aventine Keyhole." },
+
+  // Ancient Monuments & Historic Neighborhoods
+  { name: "Castel Sant'Angelo", lat: 41.9031, lon: 12.4663, type: "ancient", desc: "Cylindrical fortress originally built as Emperor Hadrian's mausoleum." },
+  { name: "Baths of Caracalla", lat: 41.8792, lon: 12.4925, type: "ancient", desc: "Massive ruins of one of Rome's largest ancient public thermal complexes." },
+  { name: "Trastevere", lat: 41.8895, lon: 12.4705, type: "district", desc: "Charming historic neighborhood famous for cobblestone alleyways and trattorias." },
+  
   // Historical & Cultural
   { name: "Colosseum", lat: 41.8902, lon: 12.4922, type: "ancient", desc: "Flavian Amphitheatre completed in 80 AD." },
   { name: "Pantheon", lat: 41.8986, lon: 12.4769, type: "ancient", desc: "Former Roman temple, now a church with a dome interior." },
