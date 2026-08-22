@@ -82,7 +82,11 @@ function loadLandmarks() {
 
     marker.on('click', (e) => {
       L.DomEvent.stopPropagation(e);
+      
+      // 1. Update the bottom bar coordinates
       setSelectedPoint(site.lat, site.lon);
+      
+      // 2. Zoom IN to level 16 directly on the landmark
       map.flyTo([site.lat, site.lon], 16, { animate: true, duration: 1.2 });
     });
 
