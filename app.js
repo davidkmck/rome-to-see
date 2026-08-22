@@ -165,6 +165,78 @@ function resetMapView() {
   map.flyTo(ROME_CENTER, 13, { animate: true, duration: 1.2 });
 }
 
+// Converts DMS string component to Decimal Degrees
+function parseDMSComponent(dmsStr) {
+  const regex = /(\d+)°\s*(\d+)'\s*([\d.]+)"?\s*([NSEW])/i;
+  const match = dmsStr.match(regex);
+  if (!match) return null;
+
+  const degrees = parseFloat(match[1]);
+  const minutes = parseFloat(match[2]);
+  const seconds = parseFloat(match[3]);
+  const direction = match[4].toUpperCase();
+
+  let decimal = degrees + (minutes / 60) + (seconds / 3600);
+  if (direction === 'S' || direction === 'W') {
+    decimal = -decimal;
+  }
+  return decimal;
+}
+
+// Parses raw string into [lat, lng] array
+function parseCoordinates(input) {
+  const str = input.trim();
+
+  // Try standard Decimal format: "41.91838, 12.49865"
+  const decRegex = /^(-?\d+(\.\d+)?)\s*,\s*(-?\d+(\.\d+)?)$/;
+  const decMatch = str.match(decRegex);
+  if (decMatch) {
+    return [parseFloat(decMatch[1]), parseFloat(decMatch[3])];
+  }
+
+  // Try DMS format: "41°55'06.2"N 12°29'55.1"E" or "41°55'06.2"N, 12°29'55.1"E"
+  const parts = str.split(/(?<=[NSEWnsew])[\s,]+/);
+  if (parts.length >= 2) {
+    const lat = parseDMSComponent(parts[0]);
+    const lng = parseDMSComponent(parts[1]);
+    if (lat !== null && lng !== null) {
+      return [lat, lng];
+    }
+  }
+
+  return null;
+}
+
+// Handler for manual input
+function handleManualCoordInput() {
+  const rawInput = document.getElementById('coordsInput').value;
+  const coords = parseCoordinates(rawInput);
+
+  if (!coords) {
+    alert("Invalid coordinate format. Try '41.91838, 12.49865' or '41°55'06.2\"N 12°29'55.1\"E'.");
+    return;
+  }
+
+  const [lat, lng] = coords;
+  const targetLatLng = L.latLng(lat, lng);
+
+  // Bounds Validation
+  if (!ITALY_BOUNDS.contains(targetLatLng)) {
+    alert("Target location is outside the supported map bounds (Italy).");
+    return;
+  }
+
+  setSelectedPoint(lat, lng);
+  map.flyTo([lat, lng], 16, { animate: true, duration: 1.2 });
+}
+
+// Also trigger auto-navigation on paste
+document.getElementById('coordsInput').addEventListener('paste', (e) => {
+  setTimeout(() => handleManualCoordInput(), 100);
+});
+
+window.handleManualCoordInput = handleManualCoordInput;
+
 window.resetMapView = resetMapView;
 window.flyToHome = flyToHome;
 window.copyCoordsToClipboard = copyCoordsToClipboard;
