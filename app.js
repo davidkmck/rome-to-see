@@ -26,6 +26,9 @@ const EMOJI_ICONS = {
   fountain: '⛲',
   vatican: '⛪',
   square: '🏟️',
+  airport: '✈️',
+  transit: '🚆',
+  mall: '🛍️',
   default: '📍'
 };
 
