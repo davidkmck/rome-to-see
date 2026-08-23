@@ -1,5 +1,5 @@
 const ITALY_BOUNDS = L.latLngBounds([35.5, 6.5], [47.1, 18.5]);
-const ROME_CENTER = [41.9028, 12.4964];
+let ROME_CENTER = [41.9028, 12.4964]; // Fallback to central Rome
 
 const map = L.map('map', {
   center: ROME_CENTER,
@@ -19,16 +19,14 @@ const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
 
 const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
   maxZoom: 18,
-  attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+  attribution: 'Tiles &copy; Esri &mdash; Source: Esri'
 });
 
 let isSatellite = false;
 osmLayer.addTo(map);
 
-// Map Base Layer Toggle with LocalStorage persistence
 function toggleBaseMap() {
   const toggleBtn = document.getElementById('layerToggleBtn');
-
   if (isSatellite) {
     map.removeLayer(satelliteLayer);
     map.addLayer(osmLayer);
@@ -46,17 +44,15 @@ function toggleBaseMap() {
 
 function loadSavedMapType() {
   const savedType = localStorage.getItem('rome_map_type');
-  if (savedType === 'satellite') {
-    toggleBaseMap();
-  }
+  if (savedType === 'satellite') toggleBaseMap();
 }
 
 const landmarkGroup = L.layerGroup().addTo(map);
-let homeMarker = null;
 let selectedMarker = null;
 let currentCoords = null;
 
 const EMOJI_ICONS = {
+  home: '🏠',
   ancient: '🏛️',
   fountain: '⛲',
   vatican: '⛪',
@@ -72,6 +68,7 @@ const EMOJI_ICONS = {
 };
 
 const CATEGORY_NAMES = {
+  home: 'Home Base',
   ancient: 'Ancient & Monuments',
   fountain: 'Fountains',
   vatican: 'Churches & Vatican',
@@ -83,19 +80,17 @@ const CATEGORY_NAMES = {
   gallery: 'Galleries',
   park: 'Parks & Gardens',
   district: 'Neighborhoods',
-  default: 'Custom Landmarks'
+  default: 'Custom / Other'
 };
 
 const categoryLayers = {};
 let activeCategories = JSON.parse(localStorage.getItem('rome_active_categories')) || Object.keys(CATEGORY_NAMES);
 let customLandmarks = JSON.parse(localStorage.getItem('rome_custom_landmarks')) || [];
 
-// Control Panel Minimization Logic
 function toggleOverlayMinimization() {
   const content = document.getElementById('overlayContent');
   const icon = document.getElementById('minIcon');
   if (!content) return;
-  
   if (content.classList.contains('minimized')) {
     content.classList.remove('minimized');
     if (icon) icon.innerText = '➖';
@@ -105,7 +100,6 @@ function toggleOverlayMinimization() {
   }
 }
 
-// Custom Landmark Modal & Storage Handlers
 function openAddLandmarkModal() {
   if (!currentCoords) {
     alert("Select a location on the map first!");
@@ -147,26 +141,57 @@ function saveCustomLandmark() {
   loadLandmarks();
 }
 
+function setHomeFromSelected() {
+  if (!currentCoords) {
+    alert("Tap a location on the map first!");
+    return;
+  }
+  
+  const newHome = {
+    id: 'custom_' + Date.now(),
+    name: 'Home / Accommodation',
+    lat: parseFloat(currentCoords.lat),
+    lon: parseFloat(currentCoords.lng),
+    type: 'home',
+    desc: 'Base accommodation',
+    isCustom: true
+  };
+
+  customLandmarks.push(newHome);
+  localStorage.setItem('rome_custom_landmarks', JSON.stringify(customLandmarks));
+  loadLandmarks();
+
+  const btn = document.getElementById('setHomeBtn');
+  if (btn) {
+    btn.innerText = '✅';
+    setTimeout(() => { btn.innerText = '🏠'; }, 1500);
+  }
+}
+
 function deleteCustomLandmark(id) {
   if (!confirm("Are you sure you want to delete this custom landmark?")) return;
-
   customLandmarks = customLandmarks.filter(item => item.id !== id);
   localStorage.setItem('rome_custom_landmarks', JSON.stringify(customLandmarks));
   loadLandmarks();
 }
 
-// Load Built-in and Custom Landmarks
 function loadLandmarks() {
   landmarkGroup.clearLayers();
-  Object.keys(categoryLayers).forEach(k => categoryLayers[k] = []);
+  Object.keys(CATEGORY_NAMES).forEach(k => categoryLayers[k] = []);
 
   const allSites = [
     ...(typeof ROME_LANDMARKS !== 'undefined' ? ROME_LANDMARKS : []),
     ...customLandmarks
   ];
 
+  // Set central home reference if at least one 'home' type exists
+  const homeSite = allSites.find(s => s.type === 'home');
+  if (homeSite) {
+    ROME_CENTER = [homeSite.lat, homeSite.lon];
+  }
+
   allSites.forEach(site => {
-    const type = site.type || 'default';
+    const type = CATEGORY_NAMES[site.type] ? site.type : 'default';
     const emoji = EMOJI_ICONS[type] || EMOJI_ICONS.default;
     
     const icon = L.divIcon({
@@ -190,9 +215,7 @@ function loadLandmarks() {
       map.flyTo([site.lat, site.lon], 16, { animate: true, duration: 1.2 });
     });
 
-    if (!categoryLayers[type]) {
-      categoryLayers[type] = [];
-    }
+    if (!categoryLayers[type]) categoryLayers[type] = [];
     categoryLayers[type].push(marker);
 
     if (activeCategories.includes(type)) {
@@ -248,74 +271,26 @@ function toggleFilterPanel() {
   if (panel) panel.classList.toggle('hidden');
 }
 
-// Home Base Management
-function setHomeLocation(lat, lng) {
-  const coords = [lat, lng];
-  localStorage.setItem('rome_home', JSON.stringify(coords));
-  
-  if (homeMarker) map.removeLayer(homeMarker);
-
-  const homeIcon = L.divIcon({
-    className: 'home-marker',
-    html: '🏠',
-    iconSize: [32, 32],
-    iconAnchor: [16, 16]
-  });
-
-  homeMarker = L.marker(coords, { icon: homeIcon })
-    .bindTooltip('<strong>Home / Accommodation</strong>', { permanent: false, direction: 'top' })
-    .addTo(map);
-
-  setSelectedPoint(lat, lng);
-  map.closePopup();
-}
-
-function loadSavedHome() {
-  const saved = localStorage.getItem('rome_home');
-  if (saved) {
-    const [lat, lng] = JSON.parse(saved);
-    setHomeLocation(lat, lng);
-  }
-}
-
 function flyToHome() {
-  const saved = localStorage.getItem('rome_home');
-  if (saved) {
-    const [lat, lng] = JSON.parse(saved);
-    setSelectedPoint(lat, lng);
-    map.flyTo([lat, lng], 16, { animate: true, duration: 1.2 });
+  const allSites = [
+    ...(typeof ROME_LANDMARKS !== 'undefined' ? ROME_LANDMARKS : []),
+    ...customLandmarks
+  ];
+  const homeSite = allSites.find(s => s.type === 'home');
+  
+  if (homeSite) {
+    setSelectedPoint(homeSite.lat, homeSite.lon);
+    map.flyTo([homeSite.lat, homeSite.lon], 16, { animate: true, duration: 1.2 });
   } else {
-    alert("Click anywhere on the map and choose 'Set as Home' first!");
+    alert("No Home landmark added yet! Select a location and tap '🏠' or create a Home landmark.");
   }
 }
 
-function setHomeFromSelected() {
-  if (!currentCoords) {
-    alert("Tap a location on the map first!");
-    return;
-  }
-  const lat = parseFloat(currentCoords.lat);
-  const lng = parseFloat(currentCoords.lng);
-
-  setHomeLocation(lat, lng);
-
-  const btn = document.getElementById('setHomeBtn');
-  if (btn) {
-    btn.innerText = '✅';
-    setTimeout(() => { btn.innerText = '🏠'; }, 1500);
-  }
-}
-
-// Selected Point & Display Controls
 function setSelectedPoint(lat, lng) {
   currentCoords = { lat: lat.toFixed(5), lng: lng.toFixed(5) };
 
-  const formattedStr = `${currentCoords.lat}, ${currentCoords.lng}`;
-  document.getElementById('coordsInput').value = formattedStr;
-
-  const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${currentCoords.lat},${currentCoords.lng}`;
-  document.getElementById('gmapsLink').href = gmapsUrl;
-
+  document.getElementById('coordsInput').value = `${currentCoords.lat}, ${currentCoords.lng}`;
+  document.getElementById('gmapsLink').href = `https://www.google.com/maps/search/?api=1&query=${currentCoords.lat},${currentCoords.lng}`;
   document.getElementById('coordsPanel').classList.remove('hidden');
 
   if (selectedMarker) map.removeLayer(selectedMarker);
@@ -342,7 +317,6 @@ function copyCoordsToClipboard() {
   });
 }
 
-// Coordinate Parsing
 function parseDMSComponent(dmsStr) {
   const regex = /(\d+)°\s*(\d+)'\s*([\d.]+)"?\s*([NSEW])/i;
   const match = dmsStr.match(regex);
@@ -354,30 +328,22 @@ function parseDMSComponent(dmsStr) {
   const direction = match[4].toUpperCase();
 
   let decimal = degrees + (minutes / 60) + (seconds / 3600);
-  if (direction === 'S' || direction === 'W') {
-    decimal = -decimal;
-  }
+  if (direction === 'S' || direction === 'W') decimal = -decimal;
   return decimal;
 }
 
 function parseCoordinates(input) {
   const str = input.trim();
-
   const decRegex = /^(-?\d+(\.\d+)?)\s*,\s*(-?\d+(\.\d+)?)$/;
   const decMatch = str.match(decRegex);
-  if (decMatch) {
-    return [parseFloat(decMatch[1]), parseFloat(decMatch[3])];
-  }
+  if (decMatch) return [parseFloat(decMatch[1]), parseFloat(decMatch[3])];
 
   const parts = str.split(/(?<=[NSEWnsew])[\s,]+/);
   if (parts.length >= 2) {
     const lat = parseDMSComponent(parts[0]);
     const lng = parseDMSComponent(parts[1]);
-    if (lat !== null && lng !== null) {
-      return [lat, lng];
-    }
+    if (lat !== null && lng !== null) return [lat, lng];
   }
-
   return null;
 }
 
@@ -391,9 +357,7 @@ function handleManualCoordInput() {
   }
 
   const [lat, lng] = coords;
-  const targetLatLng = L.latLng(lat, lng);
-
-  if (!ITALY_BOUNDS.contains(targetLatLng)) {
+  if (!ITALY_BOUNDS.contains(L.latLng(lat, lng))) {
     alert("Target location is outside the supported map bounds (Italy).");
     return;
   }
@@ -402,10 +366,8 @@ function handleManualCoordInput() {
   map.flyTo([lat, lng], 16, { animate: true, duration: 1.2 });
 }
 
-// Event Listeners
 map.on('click', (e) => {
-  const { lat, lng } = e.latlng;
-  setSelectedPoint(lat, lng);
+  setSelectedPoint(e.latlng.lat, e.latlng.lng);
 });
 
 const coordsInputElem = document.getElementById('coordsInput');
@@ -419,7 +381,6 @@ function resetMapView() {
   map.flyTo(ROME_CENTER, 13, { animate: true, duration: 1.2 });
 }
 
-// Window Global Exports
 window.toggleBaseMap = toggleBaseMap;
 window.toggleFilterPanel = toggleFilterPanel;
 window.toggleOverlayMinimization = toggleOverlayMinimization;
@@ -433,7 +394,5 @@ window.resetMapView = resetMapView;
 window.flyToHome = flyToHome;
 window.copyCoordsToClipboard = copyCoordsToClipboard;
 
-// Application Startup
 loadLandmarks();
-loadSavedHome();
 loadSavedMapType();
