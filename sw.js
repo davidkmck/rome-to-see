@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rome-2-c-v4.0.1';
+const CACHE_NAME = 'rome-2-c-v4.0.2';
 const ASSETS = [
   './',
   './index.html',
