@@ -231,6 +231,25 @@ function buildFilterPanelUI() {
   if (!container) return;
   container.innerHTML = '';
 
+  // Quick Action Buttons (Select All / Deselect All)
+  const actionContainer = document.createElement('div');
+  actionContainer.style.cssText = 'display: flex; gap: 8px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #eee;';
+
+  const selectAllBtn = document.createElement('button');
+  selectAllBtn.innerText = 'Select All';
+  selectAllBtn.style.cssText = 'flex: 1; padding: 4px 8px; font-size: 12px; border: 1px solid #dcdfe6; border-radius: 4px; background: #f0f2f5; cursor: pointer;';
+  selectAllBtn.onclick = () => toggleAllCategories(true);
+
+  const deselectAllBtn = document.createElement('button');
+  deselectAllBtn.innerText = 'Deselect All';
+  deselectAllBtn.style.cssText = 'flex: 1; padding: 4px 8px; font-size: 12px; border: 1px solid #dcdfe6; border-radius: 4px; background: #f0f2f5; cursor: pointer;';
+  deselectAllBtn.onclick = () => toggleAllCategories(false);
+
+  actionContainer.appendChild(selectAllBtn);
+  actionContainer.appendChild(deselectAllBtn);
+  container.appendChild(actionContainer);
+
+  // Category Checkboxes
   Object.keys(CATEGORY_NAMES).forEach(type => {
     if (!categoryLayers[type] || categoryLayers[type].length === 0) return;
 
@@ -265,6 +284,25 @@ function toggleCategory(type, isChecked) {
   }
   localStorage.setItem('rome_active_categories', JSON.stringify(activeCategories));
 }
+
+function toggleAllCategories(selectAll) {
+  if (selectAll) {
+    activeCategories = Object.keys(CATEGORY_NAMES);
+    Object.keys(categoryLayers).forEach(type => {
+      categoryLayers[type].forEach(m => {
+        if (!landmarkGroup.hasLayer(m)) landmarkGroup.addLayer(m);
+      });
+    });
+  } else {
+    activeCategories = [];
+    landmarkGroup.clearLayers();
+  }
+
+  localStorage.setItem('rome_active_categories', JSON.stringify(activeCategories));
+  buildFilterPanelUI(); // Refresh checkbox states
+}
+
+window.toggleAllCategories = toggleAllCategories;
 
 function toggleFilterPanel() {
   const panel = document.getElementById('filterPanel');
