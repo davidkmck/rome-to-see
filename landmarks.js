@@ -55,7 +55,7 @@ const ROME_LANDMARKS = [
   { name: "Naples Cathedral (Duomo di Napoli)", lat: 40.8525, lon: 14.2592, type: "vatican", desc: "Main Roman Catholic cathedral of Naples." },
   { name: "Naples National Archaeological Museum", lat: 40.8534, lon: 14.2505, type: "museum", desc: "Extensive collection of Greco-Roman artifacts and Pompeii frescoes." },
   { name: "Castel Nuovo", lat: 40.8384, lon: 14.2525, type: "ancient", desc: "Medieval castle overlooking the Port of Naples." },
-  { name: "Napoli Centrale Station", lat: 40.8529, lon: 14.2723, type: "transit", desc: "Main terminal station in Naples for high-speed trains from Rome." }
+  { name: "Napoli Centrale Station", lat: 40.8529, lon: 14.2723, type: "transit", desc: "Main terminal station in Naples for high-speed trains from Rome." },
 
 // --- FLORENCE TRAIN STATIONS ---
   { name: "Firenze Santa Maria Novella (SMN)", lat: 43.7765, lon: 11.2479, type: "transit", desc: "Main central station for high-speed trains from Rome and regional routes." },
