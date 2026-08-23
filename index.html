@@ -154,23 +154,130 @@
       font-size: 12px;
       font-weight: 600;
     }
+
+    /* Control Overlay Minimization */
+.controls-overlay {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.overlay-header {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-minimize {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.overlay-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.overlay-content.minimized {
+  display: none;
+}
+
+/* Modal Styling */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-backdrop.hidden {
+  display: none;
+}
+
+.modal-card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+}
+
+.modal-card input, .modal-card select, .modal-card textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #dcdfe6;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.modal-card textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.modal-actions button {
+  padding: 8px 14px;
+  border: 1px solid #dcdfe6;
+  background: #f0f2f5;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.modal-actions .btn-primary {
+  background: #2c3e50;
+  color: white;
+  border: none;
+}
   </style>
 </head>
 <body>
 
   <div id="map"></div>
 
-<!-- Floating UI Controls -->
-<div class="controls-overlay">
-  <button class="btn-control" id="layerToggleBtn" onclick="toggleBaseMap()">
-    🛰️ Satellite
-  </button>
-  <button class="btn-control" onclick="flyToHome()">
-    🏠 Home
-  </button>
-  <button class="btn-control" onclick="resetMapView()">
-    🇮🇹 Center Rome
-  </button>
+<!-- Controls Overlay -->
+<div class="controls-overlay" id="controlsOverlay">
+  <div class="overlay-header">
+    <button class="btn-control btn-minimize" onclick="toggleOverlayMinimization()">
+      <span id="minIcon">➖</span>
+    </button>
+  </div>
+  <div class="overlay-content" id="overlayContent">
+    <button class="btn-control" id="layerToggleBtn" onclick="toggleBaseMap()">
+      🛰️ Satellite
+    </button>
+    <button class="btn-control" onclick="toggleFilterPanel()">
+      ⚙️ Categories
+    </button>
+    <button class="btn-control" onclick="flyToHome()">
+      🏠 Home
+    </button>
+    <button class="btn-control" onclick="resetMapView()">
+      🇮🇹 Center Rome
+    </button>
+  </div>
 </div>
 
 <!-- Coordinates & Action Bar -->
@@ -188,6 +295,9 @@
   <button class="btn-icon" id="setHomeBtn" title="Set Selected Location as Home" onclick="setHomeFromSelected()">
     🏠
   </button>
+  <button class="btn-icon" id="addLandmarkBtn" title="Create Custom Landmark Here" onclick="openAddLandmarkModal()">
+    ➕
+  </button>
   <button class="btn-icon" id="copyBtn" title="Copy to Clipboard" onclick="copyCoordsToClipboard()">
     📋
   </button>
@@ -196,6 +306,32 @@
   </a>
 </div>
 
+  <!-- New Landmark Modal -->
+<div id="addLandmarkModal" class="modal-backdrop hidden">
+  <div class="modal-card">
+    <h3>Add Custom Landmark</h3>
+    <input type="text" id="customName" placeholder="Name (e.g., Favorite Gelateria)" />
+    <select id="customType">
+      <option value="ancient">🏛️ Ancient & Monuments</option>
+      <option value="fountain">⛲ Fountains</option>
+      <option value="vatican">⛪ Churches & Vatican</option>
+      <option value="square">🏟️ Squares & Steps</option>
+      <option value="museum">🖼️ Museums</option>
+      <option value="gallery">🎨 Galleries</option>
+      <option value="park">🌳 Parks & Gardens</option>
+      <option value="district">🍝 Historic Neighborhoods</option>
+      <option value="transit">🚆 Train Stations</option>
+      <option value="mall">🛍️ Malls</option>
+      <option value="default">📍 Custom / Other</option>
+    </select>
+    <textarea id="customDesc" placeholder="Description or notes..."></textarea>
+    <div class="modal-actions">
+      <button onclick="closeAddLandmarkModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveCustomLandmark()">Save Landmark</button>
+    </div>
+  </div>
+</div>
+  
   <!-- Leaflet JS -->
   <script 
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
