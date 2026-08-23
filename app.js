@@ -70,16 +70,34 @@ const EMOJI_ICONS = {
   museum: '🖼️',
   gallery: '🎨',
   park: '🌳',
-  district: '🍝',
   default: '📍'
 };
+
+const CATEGORY_NAMES = {
+  ancient: 'Ancient & Monuments',
+  fountain: 'Fountains',
+  vatican: 'Churches & Vatican',
+  square: 'Squares & Steps',
+  airport: 'Airports',
+  transit: 'Train Stations',
+  mall: 'Shopping Malls',
+  museum: 'Museums',
+  gallery: 'Galleries',
+  park: 'Parks & Gardens'
+};
+
+// Store markers by category
+const categoryLayers = {};
+let activeCategories = JSON.parse(localStorage.getItem('rome_active_categories')) || Object.keys(CATEGORY_NAMES);
 
 function loadLandmarks() {
   landmarkGroup.clearLayers();
   if (typeof ROME_LANDMARKS === 'undefined') return;
 
   ROME_LANDMARKS.forEach(site => {
-    const emoji = EMOJI_ICONS[site.type] || EMOJI_ICONS.default;
+    const type = site.type || 'default';
+    const emoji = EMOJI_ICONS[type] || EMOJI_ICONS.default;
+    
     const icon = L.divIcon({
       className: 'landmark-marker',
       html: emoji,
@@ -92,17 +110,69 @@ function loadLandmarks() {
 
     marker.on('click', (e) => {
       L.DomEvent.stopPropagation(e);
-      
-      // 1. Update the bottom bar coordinates
       setSelectedPoint(site.lat, site.lon);
-      
-      // 2. Zoom IN to level 16 directly on the landmark
       map.flyTo([site.lat, site.lon], 16, { animate: true, duration: 1.2 });
     });
 
-    landmarkGroup.addLayer(marker);
+    if (!categoryLayers[type]) {
+      categoryLayers[type] = [];
+    }
+    categoryLayers[type].push(marker);
+
+    if (activeCategories.includes(type)) {
+      landmarkGroup.addLayer(marker);
+    }
+  });
+
+  buildFilterPanelUI();
+}
+
+function buildFilterPanelUI() {
+  const container = document.getElementById('filterOptions');
+  if (!container) return;
+  container.innerHTML = '';
+
+  Object.keys(CATEGORY_NAMES).forEach(type => {
+    if (!categoryLayers[type]) return;
+
+    const label = document.createElement('label');
+    label.className = 'filter-item';
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = activeCategories.includes(type);
+    checkbox.onchange = () => toggleCategory(type, checkbox.checked);
+
+    const iconSpan = document.createElement('span');
+    iconSpan.innerText = `${EMOJI_ICONS[type]} ${CATEGORY_NAMES[type]}`;
+
+    label.appendChild(checkbox);
+    label.appendChild(iconSpan);
+    container.appendChild(label);
   });
 }
+
+function toggleCategory(type, isChecked) {
+  if (isChecked) {
+    if (!activeCategories.includes(type)) activeCategories.push(type);
+    if (categoryLayers[type]) {
+      categoryLayers[type].forEach(m => landmarkGroup.addLayer(m));
+    }
+  } else {
+    activeCategories = activeCategories.filter(c => c !== type);
+    if (categoryLayers[type]) {
+      categoryLayers[type].forEach(m => landmarkGroup.removeLayer(m));
+    }
+  }
+  localStorage.setItem('rome_active_categories', JSON.stringify(activeCategories));
+}
+
+function toggleFilterPanel() {
+  const panel = document.getElementById('filterPanel');
+  if (panel) panel.classList.toggle('hidden');
+}
+
+window.toggleFilterPanel = toggleFilterPanel;
 
 // Home Base Management via LocalStorage
 function setHomeLocation(lat, lng) {
