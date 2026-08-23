@@ -55,4 +55,15 @@ const ROME_LANDMARKS = [
   { name: "Naples National Archaeological Museum", lat: 40.8534, lon: 14.2505, type: "museum", desc: "Extensive collection of Greco-Roman artifacts and Pompeii frescoes." },
   { name: "Castel Nuovo", lat: 40.8384, lon: 14.2525, type: "ancient", desc: "Medieval castle overlooking the Port of Naples." },
   { name: "Napoli Centrale Station", lat: 40.8529, lon: 14.2723, type: "transit", desc: "Main terminal station in Naples for high-speed trains from Rome." }
+
+// --- FLORENCE TRAIN STATIONS ---
+  { name: "Firenze Santa Maria Novella (SMN)", lat: 43.7765, lon: 11.2479, type: "transit", desc: "Main central station for high-speed trains from Rome and regional routes." },
+  { name: "Firenze Campo di Marte", lat: 43.7745, lon: 11.2778, type: "transit", desc: "Secondary high-speed and regional rail station east of Florence center." },
+  { name: "Firenze Rifredi", lat: 43.7928, lon: 11.2361, type: "transit", desc: "Key northern commuter hub and regional transfer station." },
+
+  // --- NAPLES TRAIN STATIONS ---
+  { name: "Napoli Centrale / Piazza Garibaldi", lat: 40.8529, lon: 14.2723, type: "transit", desc: "Main terminal station in Naples for high-speed Frecciarossa/Italo trains." },
+  { name: "Napoli Afragola", lat: 40.9238, lon: 14.3128, type: "transit", desc: "Modern architectural high-speed bypass station north of Naples." },
+  { name: "Napoli Mergellina", lat: 40.8300, lon: 14.2201, type: "transit", desc: "Western seaside station serving the Mergellina and Posillipo districts." }
+
 ];
