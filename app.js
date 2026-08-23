@@ -196,7 +196,6 @@ function deleteCustomLandmark(id) {
 
   loadLandmarks();
 }
-
 function loadLandmarks() {
   landmarkGroup.clearLayers();
   Object.keys(CATEGORY_NAMES).forEach(k => categoryLayers[k] = []);
@@ -222,13 +221,18 @@ function loadLandmarks() {
       iconAnchor: [14, 14]
     });
 
-    let tooltipContent = `<strong>${site.name}</strong><br/>${site.desc}`;
+    let popupHtml = `<div style="text-align:center; padding: 4px;">`;
+    popupHtml += `<strong style="font-size:14px;">${site.name}</strong><br/>`;
+    popupHtml += `<span style="font-size:12px; color:#555;">${site.desc}</span>`;
+    
     if (site.isCustom) {
-      tooltipContent += `<br/><button onclick="event.stopPropagation(); deleteCustomLandmark('${site.id}')" style="margin-top:6px; background:#e74c3c; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:11px; font-weight:bold;">🗑️ Delete</button>`;
+      popupHtml += `<br/><button onclick="deleteCustomLandmark('${site.id}')" style="margin-top:8px; background:#e74c3c; color:white; border:none; border-radius:4px; padding:6px 10px; cursor:pointer; font-size:12px; font-weight:bold; width:100%;">🗑️ Delete Landmark</button>`;
     }
+    popupHtml += `</div>`;
 
+    // Bind as a Popup instead of a Tooltip so it stays static and clickable
     const marker = L.marker([site.lat, site.lon], { icon })
-      .bindTooltip(tooltipContent, { direction: 'top', interactive: true });
+      .bindPopup(popupHtml, { closeButton: true, offset: [0, -10] });
 
     marker.on('click', (e) => {
       L.DomEvent.stopPropagation(e);
