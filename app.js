@@ -25,7 +25,7 @@ const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/
 let isSatellite = false;
 osmLayer.addTo(map);
 
-// Updated Map Toggle Logic with LocalStorage persistence
+// Map Base Layer Toggle with LocalStorage persistence
 function toggleBaseMap() {
   const toggleBtn = document.getElementById('layerToggleBtn');
 
@@ -44,7 +44,6 @@ function toggleBaseMap() {
   }
 }
 
-// Loads saved tile layer state on startup
 function loadSavedMapType() {
   const savedType = localStorage.getItem('rome_map_type');
   if (savedType === 'satellite') {
@@ -52,8 +51,6 @@ function loadSavedMapType() {
   }
 }
 
-
-window.toggleBaseMap = toggleBaseMap;
 const landmarkGroup = L.layerGroup().addTo(map);
 let homeMarker = null;
 let selectedMarker = null;
@@ -70,6 +67,7 @@ const EMOJI_ICONS = {
   museum: '🖼️',
   gallery: '🎨',
   park: '🌳',
+  district: '🍝',
   default: '📍'
 };
 
@@ -83,18 +81,91 @@ const CATEGORY_NAMES = {
   mall: 'Shopping Malls',
   museum: 'Museums',
   gallery: 'Galleries',
-  park: 'Parks & Gardens'
+  park: 'Parks & Gardens',
+  district: 'Neighborhoods',
+  default: 'Custom Landmarks'
 };
 
-// Store markers by category
 const categoryLayers = {};
 let activeCategories = JSON.parse(localStorage.getItem('rome_active_categories')) || Object.keys(CATEGORY_NAMES);
+let customLandmarks = JSON.parse(localStorage.getItem('rome_custom_landmarks')) || [];
 
+// Control Panel Minimization Logic
+function toggleOverlayMinimization() {
+  const content = document.getElementById('overlayContent');
+  const icon = document.getElementById('minIcon');
+  if (!content) return;
+  
+  if (content.classList.contains('minimized')) {
+    content.classList.remove('minimized');
+    if (icon) icon.innerText = '➖';
+  } else {
+    content.classList.add('minimized');
+    if (icon) icon.innerText = '➕';
+  }
+}
+
+// Custom Landmark Modal & Storage Handlers
+function openAddLandmarkModal() {
+  if (!currentCoords) {
+    alert("Select a location on the map first!");
+    return;
+  }
+  document.getElementById('customName').value = '';
+  document.getElementById('customDesc').value = '';
+  document.getElementById('addLandmarkModal').classList.remove('hidden');
+}
+
+function closeAddLandmarkModal() {
+  document.getElementById('addLandmarkModal').classList.add('hidden');
+}
+
+function saveCustomLandmark() {
+  const name = document.getElementById('customName').value.trim();
+  const type = document.getElementById('customType').value;
+  const desc = document.getElementById('customDesc').value.trim();
+
+  if (!name) {
+    alert("Please enter a name for the landmark.");
+    return;
+  }
+
+  const newSite = {
+    id: 'custom_' + Date.now(),
+    name,
+    lat: parseFloat(currentCoords.lat),
+    lon: parseFloat(currentCoords.lng),
+    type,
+    desc,
+    isCustom: true
+  };
+
+  customLandmarks.push(newSite);
+  localStorage.setItem('rome_custom_landmarks', JSON.stringify(customLandmarks));
+  
+  closeAddLandmarkModal();
+  loadLandmarks();
+}
+
+function deleteCustomLandmark(id) {
+  if (!confirm("Are you sure you want to delete this custom landmark?")) return;
+
+  customLandmarks = customLandmarks.filter(item => item.id !== id);
+  localStorage.setItem('rome_custom_landmarks', JSON.stringify(customLandmarks));
+  loadLandmarks();
+}
+
+// Load Built-in and Custom Landmarks
 function loadLandmarks() {
   landmarkGroup.clearLayers();
-  if (typeof ROME_LANDMARKS === 'undefined') return;
+  Object.keys(categoryLayers).forEach(k => categoryLayers[k] = []);
 
-  ROME_LANDMARKS.forEach(site => {
+  const allSites = [
+    ...(typeof ROME_LANDMARKS !== 'undefined' ? ROME_LANDMARKS : []),
+    ...customLandmarks
+  ];
+
+  allSites.forEach(site => {
     const type = site.type || 'default';
     const emoji = EMOJI_ICONS[type] || EMOJI_ICONS.default;
     
@@ -105,8 +176,13 @@ function loadLandmarks() {
       iconAnchor: [14, 14]
     });
 
+    let tooltipContent = `<strong>${site.name}</strong><br/>${site.desc}`;
+    if (site.isCustom) {
+      tooltipContent += `<br/><button onclick="deleteCustomLandmark('${site.id}')" style="margin-top:6px; background:#e74c3c; color:white; border:none; border-radius:4px; padding:2px 6px; cursor:pointer; font-size:11px;">🗑️ Delete</button>`;
+    }
+
     const marker = L.marker([site.lat, site.lon], { icon })
-      .bindTooltip(`<strong>${site.name}</strong><br/>${site.desc}`, { direction: 'top' });
+      .bindTooltip(tooltipContent, { direction: 'top', interactive: true });
 
     marker.on('click', (e) => {
       L.DomEvent.stopPropagation(e);
@@ -133,7 +209,7 @@ function buildFilterPanelUI() {
   container.innerHTML = '';
 
   Object.keys(CATEGORY_NAMES).forEach(type => {
-    if (!categoryLayers[type]) return;
+    if (!categoryLayers[type] || categoryLayers[type].length === 0) return;
 
     const label = document.createElement('label');
     label.className = 'filter-item';
@@ -172,9 +248,7 @@ function toggleFilterPanel() {
   if (panel) panel.classList.toggle('hidden');
 }
 
-window.toggleFilterPanel = toggleFilterPanel;
-
-// Home Base Management via LocalStorage
+// Home Base Management
 function setHomeLocation(lat, lng) {
   const coords = [lat, lng];
   localStorage.setItem('rome_home', JSON.stringify(coords));
@@ -215,6 +289,23 @@ function flyToHome() {
   }
 }
 
+function setHomeFromSelected() {
+  if (!currentCoords) {
+    alert("Tap a location on the map first!");
+    return;
+  }
+  const lat = parseFloat(currentCoords.lat);
+  const lng = parseFloat(currentCoords.lng);
+
+  setHomeLocation(lat, lng);
+
+  const btn = document.getElementById('setHomeBtn');
+  if (btn) {
+    btn.innerText = '✅';
+    setTimeout(() => { btn.innerText = '🏠'; }, 1500);
+  }
+}
+
 // Selected Point & Display Controls
 function setSelectedPoint(lat, lng) {
   currentCoords = { lat: lat.toFixed(5), lng: lng.toFixed(5) };
@@ -244,42 +335,14 @@ function copyCoordsToClipboard() {
   const str = `${currentCoords.lat}, ${currentCoords.lng}`;
   navigator.clipboard.writeText(str).then(() => {
     const copyBtn = document.getElementById('copyBtn');
-    copyBtn.innerText = '✅';
-    setTimeout(() => { copyBtn.innerText = '📋'; }, 1500);
+    if (copyBtn) {
+      copyBtn.innerText = '✅';
+      setTimeout(() => { copyBtn.innerText = '📋'; }, 1500);
+    }
   });
 }
 
-// Map Click Interactions
-map.on('click', (e) => {
-  const { lat, lng } = e.latlng;
-  setSelectedPoint(lat, lng);
-});
-
-map.on('contextmenu', (e) => {
-  const { lat, lng } = e.latlng;
-  setSelectedPoint(lat, lng);
-
-  const popupContent = document.createElement('div');
-  popupContent.style.textAlign = 'center';
-  
-  const setHomeBtn = document.createElement('button');
-  setHomeBtn.className = 'popup-btn';
-  setHomeBtn.innerText = '🏠 Set as Home';
-  setHomeBtn.onclick = () => setHomeLocation(lat, lng);
-
-  popupContent.appendChild(setHomeBtn);
-
-  L.popup()
-    .setLatLng(e.latlng)
-    .setContent(popupContent)
-    .openOn(map);
-});
-
-function resetMapView() {
-  map.flyTo(ROME_CENTER, 13, { animate: true, duration: 1.2 });
-}
-
-// Converts DMS string component to Decimal Degrees
+// Coordinate Parsing
 function parseDMSComponent(dmsStr) {
   const regex = /(\d+)°\s*(\d+)'\s*([\d.]+)"?\s*([NSEW])/i;
   const match = dmsStr.match(regex);
@@ -297,18 +360,15 @@ function parseDMSComponent(dmsStr) {
   return decimal;
 }
 
-// Parses raw string into [lat, lng] array
 function parseCoordinates(input) {
   const str = input.trim();
 
-  // Try standard Decimal format: "41.91838, 12.49865"
   const decRegex = /^(-?\d+(\.\d+)?)\s*,\s*(-?\d+(\.\d+)?)$/;
   const decMatch = str.match(decRegex);
   if (decMatch) {
     return [parseFloat(decMatch[1]), parseFloat(decMatch[3])];
   }
 
-  // Try DMS format: "41°55'06.2"N 12°29'55.1"E" or "41°55'06.2"N, 12°29'55.1"E"
   const parts = str.split(/(?<=[NSEWnsew])[\s,]+/);
   if (parts.length >= 2) {
     const lat = parseDMSComponent(parts[0]);
@@ -321,7 +381,6 @@ function parseCoordinates(input) {
   return null;
 }
 
-// Handler for manual input
 function handleManualCoordInput() {
   const rawInput = document.getElementById('coordsInput').value;
   const coords = parseCoordinates(rawInput);
@@ -334,7 +393,6 @@ function handleManualCoordInput() {
   const [lat, lng] = coords;
   const targetLatLng = L.latLng(lat, lng);
 
-  // Bounds Validation
   if (!ITALY_BOUNDS.contains(targetLatLng)) {
     alert("Target location is outside the supported map bounds (Italy).");
     return;
@@ -344,45 +402,38 @@ function handleManualCoordInput() {
   map.flyTo([lat, lng], 16, { animate: true, duration: 1.2 });
 }
 
-// Also trigger auto-navigation on paste
-document.getElementById('coordsInput').addEventListener('paste', (e) => {
-  setTimeout(() => handleManualCoordInput(), 100);
-});
-
-// Set home directly from the currently active selected coordinates
-function setHomeFromSelected() {
-  if (!currentCoords) {
-    alert("Tap a location on the map first!");
-    return;
-  }
-  const lat = parseFloat(currentCoords.lat);
-  const lng = parseFloat(currentCoords.lng);
-
-  setHomeLocation(lat, lng);
-
-  // Brief UI feedback on the button
-  const btn = document.getElementById('setHomeBtn');
-  btn.innerText = '✅';
-  setTimeout(() => { btn.innerText = '🏠'; }, 1500);
-}
-
-// Updated Map Click Interaction
+// Event Listeners
 map.on('click', (e) => {
   const { lat, lng } = e.latlng;
   setSelectedPoint(lat, lng);
 });
 
-// Remove old desktop contextmenu popup listener to keep touch clear
-map.off('contextmenu');
+const coordsInputElem = document.getElementById('coordsInput');
+if (coordsInputElem) {
+  coordsInputElem.addEventListener('paste', () => {
+    setTimeout(() => handleManualCoordInput(), 100);
+  });
+}
 
+function resetMapView() {
+  map.flyTo(ROME_CENTER, 13, { animate: true, duration: 1.2 });
+}
+
+// Window Global Exports
+window.toggleBaseMap = toggleBaseMap;
+window.toggleFilterPanel = toggleFilterPanel;
+window.toggleOverlayMinimization = toggleOverlayMinimization;
+window.openAddLandmarkModal = openAddLandmarkModal;
+window.closeAddLandmarkModal = closeAddLandmarkModal;
+window.saveCustomLandmark = saveCustomLandmark;
+window.deleteCustomLandmark = deleteCustomLandmark;
 window.setHomeFromSelected = setHomeFromSelected;
-
 window.handleManualCoordInput = handleManualCoordInput;
-
 window.resetMapView = resetMapView;
 window.flyToHome = flyToHome;
 window.copyCoordsToClipboard = copyCoordsToClipboard;
 
-// Initialization
+// Application Startup
 loadLandmarks();
 loadSavedHome();
+loadSavedMapType();
