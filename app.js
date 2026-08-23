@@ -141,24 +141,32 @@ function saveCustomLandmark() {
   loadLandmarks();
 }
 
+
 function setHomeFromSelected() {
   if (!currentCoords) {
     alert("Tap a location on the map first!");
     return;
   }
   
+  // Remove any previously saved home base landmark
+  customLandmarks = customLandmarks.filter(s => s.type !== 'home');
+
   const newHome = {
     id: 'custom_' + Date.now(),
-    name: 'Home / Accommodation',
+    name: 'Home Base',
     lat: parseFloat(currentCoords.lat),
     lon: parseFloat(currentCoords.lng),
     type: 'home',
-    desc: 'Base accommodation',
+    desc: 'Accommodation base',
     isCustom: true
   };
 
   customLandmarks.push(newHome);
   localStorage.setItem('rome_custom_landmarks', JSON.stringify(customLandmarks));
+  
+  // Update map center reference directly
+  ROME_CENTER = [newHome.lat, newHome.lon];
+
   loadLandmarks();
 
   const btn = document.getElementById('setHomeBtn');
@@ -169,9 +177,23 @@ function setHomeFromSelected() {
 }
 
 function deleteCustomLandmark(id) {
-  if (!confirm("Are you sure you want to delete this custom landmark?")) return;
+  if (!confirm("Are you sure you want to delete this landmark?")) return;
+
+  // Close open map tooltips/popups to prevent phantom UI elements
+  map.closePopup();
+  map.eachLayer(layer => {
+    if (layer.getTooltip && layer.getTooltip()) {
+      layer.closeTooltip();
+    }
+  });
+
   customLandmarks = customLandmarks.filter(item => item.id !== id);
   localStorage.setItem('rome_custom_landmarks', JSON.stringify(customLandmarks));
+
+  // Reset default map center if home was deleted
+  const remainingHome = customLandmarks.find(s => s.type === 'home');
+  ROME_CENTER = remainingHome ? [remainingHome.lat, remainingHome.lon] : [41.9028, 12.4964];
+
   loadLandmarks();
 }
 
@@ -184,7 +206,6 @@ function loadLandmarks() {
     ...customLandmarks
   ];
 
-  // Set central home reference if at least one 'home' type exists
   const homeSite = allSites.find(s => s.type === 'home');
   if (homeSite) {
     ROME_CENTER = [homeSite.lat, homeSite.lon];
@@ -203,7 +224,7 @@ function loadLandmarks() {
 
     let tooltipContent = `<strong>${site.name}</strong><br/>${site.desc}`;
     if (site.isCustom) {
-      tooltipContent += `<br/><button onclick="deleteCustomLandmark('${site.id}')" style="margin-top:6px; background:#e74c3c; color:white; border:none; border-radius:4px; padding:2px 6px; cursor:pointer; font-size:11px;">🗑️ Delete</button>`;
+      tooltipContent += `<br/><button onclick="event.stopPropagation(); deleteCustomLandmark('${site.id}')" style="margin-top:6px; background:#e74c3c; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:11px; font-weight:bold;">🗑️ Delete</button>`;
     }
 
     const marker = L.marker([site.lat, site.lon], { icon })
