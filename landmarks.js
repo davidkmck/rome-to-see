@@ -42,7 +42,8 @@ const ROME_LANDMARKS = [
   // Shopping Malls
   { name: "Euroma2", lat: 41.8268, lon: 12.4646, type: "mall", desc: "Large multi-level shopping center in the EUR district." },
   { name: "Porta di Roma", lat: 41.9723, lon: 12.5385, type: "mall", desc: "One of the largest shopping malls in Italy with over 200 stores." },
-  { name: "RomaEst", lat: 41.9174, lon: 12.6685, type: "mall", desc: "Expansive retail complex located in east Rome." }
+  { name: "RomaEst", lat: 41.9174, lon: 12.6685, type: "mall", desc: "Expansive retail complex located in east Rome." },
+  
 
   // --- FLORENCE (DAY TRIP) ---
   { name: "Florence Cathedral (Duomo)", lat: 43.7731, lon: 11.2560, type: "vatican", desc: "Florence's landmark cathedral with Brunelleschi's dome." },
