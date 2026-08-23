@@ -251,6 +251,57 @@
   color: white;
   border: none;
 }
+
+    /* Filter Panel Styling */
+.filter-panel {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 1000;
+  background: #ffffff;
+  padding: 14px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  width: 220px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.filter-panel.hidden {
+  display: none;
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #eee;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #888;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.filter-item input {
+  cursor: pointer;
+}
+    
   </style>
 </head>
 <body>
@@ -279,6 +330,16 @@
     </button>
   </div>
 </div>
+
+  <!-- Category Toggle Drawer -->
+<div id="filterPanel" class="filter-panel hidden">
+  <div class="filter-header">
+    <span>Filter Landmarks</span>
+    <button class="btn-close" onclick="toggleFilterPanel()">✕</button>
+  </div>
+  <div id="filterOptions" class="filter-options"></div>
+</div>
+  
 
 <!-- Coordinates & Action Bar -->
 <div id="coordsPanel" class="coords-panel">
