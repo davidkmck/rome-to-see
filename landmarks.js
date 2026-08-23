@@ -43,4 +43,16 @@ const ROME_LANDMARKS = [
   { name: "Euroma2", lat: 41.8268, lon: 12.4646, type: "mall", desc: "Large multi-level shopping center in the EUR district." },
   { name: "Porta di Roma", lat: 41.9723, lon: 12.5385, type: "mall", desc: "One of the largest shopping malls in Italy with over 200 stores." },
   { name: "RomaEst", lat: 41.9174, lon: 12.6685, type: "mall", desc: "Expansive retail complex located in east Rome." }
+
+  // --- FLORENCE (DAY TRIP) ---
+  { name: "Florence Cathedral (Duomo)", lat: 43.7731, lon: 11.2560, type: "vatican", desc: "Florence's landmark cathedral with Brunelleschi's dome." },
+  { name: "Uffizi Gallery", lat: 43.7678, lon: 11.2553, type: "gallery", desc: "World-famous Renaissance art museum." },
+  { name: "Ponte Vecchio", lat: 43.7680, lon: 11.2531, type: "ancient", desc: "Medieval stone arch bridge with shops over the Arno River." },
+  { name: "Firenze Santa Maria Novella", lat: 43.7765, lon: 11.2479, type: "transit", desc: "Main high-speed railway station in Florence." },
+
+  // --- NAPLES (DAY TRIP) ---
+  { name: "Naples Cathedral (Duomo di Napoli)", lat: 40.8525, lon: 14.2592, type: "vatican", desc: "Main Roman Catholic cathedral of Naples." },
+  { name: "Naples National Archaeological Museum", lat: 40.8534, lon: 14.2505, type: "museum", desc: "Extensive collection of Greco-Roman artifacts and Pompeii frescoes." },
+  { name: "Castel Nuovo", lat: 40.8384, lon: 14.2525, type: "ancient", desc: "Medieval castle overlooking the Port of Naples." },
+  { name: "Napoli Centrale Station", lat: 40.8529, lon: 14.2723, type: "transit", desc: "Main terminal station in Naples for high-speed trains from Rome." }
 ];
