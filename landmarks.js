@@ -43,6 +43,14 @@ const ROME_LANDMARKS = [
   { name: "Euroma2", lat: 41.8268, lon: 12.4646, type: "mall", desc: "Large multi-level shopping center in the EUR district." },
   { name: "Porta di Roma", lat: 41.9723, lon: 12.5385, type: "mall", desc: "One of the largest shopping malls in Italy with over 200 stores." },
   { name: "RomaEst", lat: 41.9174, lon: 12.6685, type: "mall", desc: "Expansive retail complex located in east Rome." },
+
+  // --- ADDITIONAL SHOPPING MALLS & ARCADES ---
+  { name: "Galleria Alberto Sordi", lat: 41.9011, lon: 12.4807, type: "mall", desc: "Historic 1920s shopping arcade on Via del Corso in central Rome." },
+  { name: "Maximo Shopping Centre", lat: 41.8169, lon: 12.4781, type: "mall", desc: "Modern mall in EUR/Laurentina with 160+ stores, food court, and cinema." },
+  { name: "Aura Shopping Centre", lat: 41.9022, lon: 12.4414, type: "mall", desc: "Convenient shopping center near Valle Aurelia metro station and Vatican City." },
+  { name: "The WoW Side (Parco Leonardo)", lat: 41.7964, lon: 12.2536, type: "mall", desc: "Large retail and entertainment complex near Fiumicino Airport with tech exhibits and cinema." },
+  { name: "Castel Romano Designer Outlet", lat: 41.7161, lon: 12.4468, type: "mall", desc: "Open-air luxury outlet village south of Rome with 150+ brand stores." },
+  { name: "Cinecittà Due", lat: 41.8587, lon: 12.5644, type: "mall", desc: "Rome's historic first indoor shopping center, located along Metro Line A." },
   
 
   // --- FLORENCE (DAY TRIP) ---
