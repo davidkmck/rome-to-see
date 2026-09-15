@@ -477,6 +477,44 @@ function resetMapView() {
   map.flyTo(ROME_CENTER, 13, { animate: true, duration: 1.2 });
 }
 
+function markUserLocation() {
+    // Attempt to locate the user and pan the map to them
+    map.locate({ setView: false, maxZoom: 16 });
+
+    // When location is successfully found
+    map.once('locationfound', function(e) {
+        // Verify the user is actually within your defined map bounds
+        if (ITALY_BOUNDS.contains(e.latlng)) {
+            
+            // Create a distinct marker (like a blue dot)
+            const userIcon = L.divIcon({
+                className: 'user-marker',
+                html: '<div style="font-size: 24px; text-shadow: 0px 0px 4px white;">📍🔵</div>', 
+                iconSize: [28, 28],
+                iconAnchor: [14, 28]
+            });
+
+            // Add it to the map
+            L.marker(e.latlng, { icon: userIcon })
+                .addTo(map)
+                .bindPopup("<b>You are here!</b>")
+                .openPopup();
+                
+            // Optionally set it as the currently selected point so your coordinate UI updates
+            setSelectedPoint(e.latlng.lat, e.latlng.lng);
+            map.flyTo(e.latlng, 16, { animate: true, duration: 1.2 });
+            
+        } else {
+            alert("Location found, but you appear to be outside of Italy!");
+        }
+    });
+
+    // Handle errors (e.g., user denied permission, or GPS is off)
+    map.once('locationerror', function(e) {
+        alert("Could not access location. Please ensure location services are enabled and permissions are granted.");
+    });
+}
+
 window.toggleBaseMap = toggleBaseMap;
 window.toggleFilterPanel = toggleFilterPanel;
 window.toggleOverlayMinimization = toggleOverlayMinimization;
