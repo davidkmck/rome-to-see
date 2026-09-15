@@ -51,6 +51,7 @@ const landmarkGroup = L.layerGroup().addTo(map);
 let selectedMarker = null;
 let currentCoords = null;
 
+
 const EMOJI_ICONS = {
   home: '🏠',
   ancient: '🏛️',
@@ -86,6 +87,7 @@ const CATEGORY_NAMES = {
 const categoryLayers = {};
 let activeCategories = JSON.parse(localStorage.getItem('rome_active_categories')) || Object.keys(CATEGORY_NAMES);
 let customLandmarks = JSON.parse(localStorage.getItem('rome_custom_landmarks')) || [];
+let seenLandmarks = JSON.parse(localStorage.getItem('rome_seen_landmarks')) || [];
 
 function toggleOverlayMinimization() {
   const content = document.getElementById('overlayContent');
@@ -213,10 +215,20 @@ function loadLandmarks() {
   allSites.forEach(site => {
     const type = CATEGORY_NAMES[site.type] ? site.type : 'default';
     const emoji = EMOJI_ICONS[type] || EMOJI_ICONS.default;
+
+// --- NEW CODE START ---
+        // Check if the landmark name is in our seen list
+        const isSeen = seenLandmarks.includes(site.name);
+        
+        // Visually change the marker if seen (lower opacity, greyscale, and add a checkmark badge)
+        const iconHtml = `<div style="position:relative; opacity: ${isSeen ? '0.6' : '1'}; filter: ${isSeen ? 'grayscale(0.8)' : 'none'};">
+            ${emoji}
+            ${isSeen ? '<span style="position:absolute; bottom:-6px; right:-6px; font-size:12px; text-shadow: 0px 0px 2px white;">✅</span>' : ''}
+        </div>`;
     
     const icon = L.divIcon({
       className: 'landmark-marker',
-      html: emoji,
+      html: iconHtml,
       iconSize: [28, 28],
       iconAnchor: [14, 14]
     });
@@ -224,7 +236,12 @@ function loadLandmarks() {
     let popupHtml = `<div style="text-align:center; padding: 4px;">`;
     popupHtml += `<strong style="font-size:14px;">${site.name}</strong><br/>`;
     popupHtml += `<span style="font-size:12px; color:#555;">${site.desc}</span>`;
-    
+
+    // Add the Mark as Seen / Unseen button
+        // Note: We escape single quotes in the name just in case a landmark is named like "St. Peter's"
+        const escapedName = site.name.replace(/'/g, "\\'");
+        popupHtml += `<br/><button onclick="toggleSeen('${escapedName}')" style="margin-top:8px; background:${isSeen ? '#7f8c8d' : '#2ecc71'}; color:white; border:none; border-radius:4px; padding:6px 10px; cursor:pointer; font-size:12px; font-weight:bold; width:100%;">${isSeen ? '❌ Mark as Unseen' : '✅ Mark as Seen'}</button>`;
+        // --- NEW CODE END ---
     if (site.isCustom) {
       popupHtml += `<br/><button onclick="deleteCustomLandmark('${site.id}')" style="margin-top:8px; background:#e74c3c; color:white; border:none; border-radius:4px; padding:6px 10px; cursor:pointer; font-size:12px; font-weight:bold; width:100%;">🗑️ Delete Landmark</button>`;
     }
@@ -332,6 +349,22 @@ window.toggleAllCategories = toggleAllCategories;
 function toggleFilterPanel() {
   const panel = document.getElementById('filterPanel');
   if (panel) panel.classList.toggle('hidden');
+}
+
+function toggleSeen(siteName) {
+    if (seenLandmarks.includes(siteName)) {
+        // If already seen, remove it from the list
+        seenLandmarks = seenLandmarks.filter(name => name !== siteName);
+    } else {
+        // If not seen, add it
+        seenLandmarks.push(siteName);
+    }
+    // Save to local storage
+    localStorage.setItem('rome_seen_landmarks', JSON.stringify(seenLandmarks));
+    
+    // Close the popup so it doesn't linger, then reload markers
+    map.closePopup();
+    loadLandmarks();
 }
 
 function flyToHome() {
@@ -456,6 +489,7 @@ window.handleManualCoordInput = handleManualCoordInput;
 window.resetMapView = resetMapView;
 window.flyToHome = flyToHome;
 window.copyCoordsToClipboard = copyCoordsToClipboard;
+window.toggleSeen = toggleSeen;
 
 loadLandmarks();
 loadSavedMapType();
