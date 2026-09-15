@@ -12,6 +12,8 @@ const ROME_LANDMARKS = [
   // Ancient Monuments & Historic Neighborhoods
   { name: "Castel Sant'Angelo", lat: 41.9031, lon: 12.4663, type: "ancient", desc: "Cylindrical fortress originally built as Emperor Hadrian's mausoleum." },
   { name: "Baths of Caracalla", lat: 41.8792, lon: 12.4925, type: "ancient", desc: "Massive ruins of one of Rome's largest ancient public thermal complexes." },
+  { name: "Museum of the Walls (Museo delle Mura)", lat: 41.8733, lon: 12.5015, type: "ancient", desc: "Housed in the ancient Porta San Sebastiano, detailing the history and construction of Rome's defensive Aurelian Walls." },
+  { name: "Trajan's Market & Imperial Fora Museum", lat: 41.8954, lon: 12.4862, type: "ancient", desc: "A massive ancient complex built to celebrate Emperor Trajan's military conquests in Dacia." },
   { name: "Trastevere", lat: 41.8895, lon: 12.4705, type: "district", desc: "Charming historic neighborhood famous for cobblestone alleyways and trattorias." },
   
   // Historical & Cultural
@@ -29,13 +31,9 @@ const ROME_LANDMARKS = [
   { name: "National Roman Museum (Palazzo Massimo)", lat: 41.9014, lon: 12.4984, type: "museum", desc: "Premier collection of classical Roman sculptures, mosaics, and frescoes." },
   { name: "MAXXI National Museum", lat: 41.9282, lon: 12.4667, type: "gallery", desc: "National Museum of 21st Century Arts designed by Zaha Hadid." },
   { name: "Galleria Doria Pamphilj", lat: 41.8978, lon: 12.4813, type: "gallery", desc: "Large private art collection housed in a historic palazzo." },
+  { name: "Roman Legionary Museum", lat: 41.8697, lon: 12.5021, type: "museum", desc: "Displays accurate reproductions of armor, war machines, and daily objects of ancient Roman legionaries." },
+  { name: "Ara Pacis Museum", lat: 41.9061, lon: 12.4754, type: "ancient", desc: "Houses the Altar of Augustan Peace, a monument celebrating the return of Augustus from his military campaigns." },
 
-// Military Museums
-  { name: "Shrine of the Flags (Sacrario delle Bandiere)", lat: 41.8940, lon: 12.4842, type: "museum", desc: "Located inside the Vittoriano, housing war flags and relics of the Italian Armed Forces." },
-  { name: "Roman Legionary Museum (Museo Storico Didattico del Legionario Romano)", lat: 41.8697, lon: 12.5021, type: "museum", desc: "Displays accurate reproductions of armor, war machines, and daily objects of Roman legionaries." },
-  { name: "Museum of Military Engineering (Museo del Genio)", lat: 41.9216, lon: 12.4633, type: "museum", desc: "Exhibits on Italian military engineering, communications, and historical inventions." },
-  { name: "Historical Museum of the Infantry (Museo Storico della Fanteria)", lat: 41.8885, lon: 12.5165, type: "museum", desc: "A vast collection of weaponry, uniforms, and banners depicting the history of the Italian infantry." },
-  
   // Airports
   { name: "FCO - Leonardo da Vinci–Fiumicino Airport", lat: 41.8003, lon: 12.2389, type: "airport", desc: "Rome's primary international airport." },
   { name: "CIA - Ciampino–G. B. Pastine Airport", lat: 41.7994, lon: 12.5949, type: "airport", desc: "Rome's secondary airport, hub for budget airlines." },
@@ -58,7 +56,6 @@ const ROME_LANDMARKS = [
   { name: "Castel Romano Designer Outlet", lat: 41.7161, lon: 12.4468, type: "mall", desc: "Open-air luxury outlet village south of Rome with 150+ brand stores." },
   { name: "Cinecittà Due", lat: 41.8587, lon: 12.5644, type: "mall", desc: "Rome's historic first indoor shopping center, located along Metro Line A." },
   
-
   // --- FLORENCE (DAY TRIP) ---
   { name: "Florence Cathedral (Duomo)", lat: 43.7731, lon: 11.2560, type: "vatican", desc: "Florence's landmark cathedral with Brunelleschi's dome." },
   { name: "Uffizi Gallery", lat: 43.7678, lon: 11.2553, type: "gallery", desc: "World-famous Renaissance art museum." },
@@ -71,7 +68,7 @@ const ROME_LANDMARKS = [
   { name: "Castel Nuovo", lat: 40.8384, lon: 14.2525, type: "ancient", desc: "Medieval castle overlooking the Port of Naples." },
   { name: "Napoli Centrale Station", lat: 40.8529, lon: 14.2723, type: "transit", desc: "Main terminal station in Naples for high-speed trains from Rome." },
 
-// --- FLORENCE TRAIN STATIONS ---
+  // --- FLORENCE TRAIN STATIONS ---
   { name: "Firenze Santa Maria Novella (SMN)", lat: 43.7765, lon: 11.2479, type: "transit", desc: "Main central station for high-speed trains from Rome and regional routes." },
   { name: "Firenze Campo di Marte", lat: 43.7745, lon: 11.2778, type: "transit", desc: "Secondary high-speed and regional rail station east of Florence center." },
   { name: "Firenze Rifredi", lat: 43.7928, lon: 11.2361, type: "transit", desc: "Key northern commuter hub and regional transfer station." },
@@ -80,5 +77,4 @@ const ROME_LANDMARKS = [
   { name: "Napoli Centrale / Piazza Garibaldi", lat: 40.8529, lon: 14.2723, type: "transit", desc: "Main terminal station in Naples for high-speed Frecciarossa/Italo trains." },
   { name: "Napoli Afragola", lat: 40.9238, lon: 14.3128, type: "transit", desc: "Modern architectural high-speed bypass station north of Naples." },
   { name: "Napoli Mergellina", lat: 40.8300, lon: 14.2201, type: "transit", desc: "Western seaside station serving the Mergellina and Posillipo districts." }
-
 ];
