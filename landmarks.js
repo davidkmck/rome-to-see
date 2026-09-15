@@ -30,6 +30,12 @@ const ROME_LANDMARKS = [
   { name: "MAXXI National Museum", lat: 41.9282, lon: 12.4667, type: "gallery", desc: "National Museum of 21st Century Arts designed by Zaha Hadid." },
   { name: "Galleria Doria Pamphilj", lat: 41.8978, lon: 12.4813, type: "gallery", desc: "Large private art collection housed in a historic palazzo." },
 
+// Military Museums
+  { name: "Shrine of the Flags (Sacrario delle Bandiere)", lat: 41.8940, lon: 12.4842, type: "museum", desc: "Located inside the Vittoriano, housing war flags and relics of the Italian Armed Forces." },
+  { name: "Roman Legionary Museum (Museo Storico Didattico del Legionario Romano)", lat: 41.8697, lon: 12.5021, type: "museum", desc: "Displays accurate reproductions of armor, war machines, and daily objects of Roman legionaries." },
+  { name: "Museum of Military Engineering (Museo del Genio)", lat: 41.9216, lon: 12.4633, type: "museum", desc: "Exhibits on Italian military engineering, communications, and historical inventions." },
+  { name: "Historical Museum of the Infantry (Museo Storico della Fanteria)", lat: 41.8885, lon: 12.5165, type: "museum", desc: "A vast collection of weaponry, uniforms, and banners depicting the history of the Italian infantry." },
+  
   // Airports
   { name: "FCO - Leonardo da Vinci–Fiumicino Airport", lat: 41.8003, lon: 12.2389, type: "airport", desc: "Rome's primary international airport." },
   { name: "CIA - Ciampino–G. B. Pastine Airport", lat: 41.7994, lon: 12.5949, type: "airport", desc: "Rome's secondary airport, hub for budget airlines." },
