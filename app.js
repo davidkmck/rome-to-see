@@ -602,10 +602,26 @@ async function searchLocation() {
   const inputElem = document.getElementById('mapSearchInput');
   if (!inputElem) return;
   
-  const query = inputElem.value.trim();
+  const query = inputElem.value.trim().toLowerCase(); // Convert to lowercase for matching
   if (!query) return;
 
-  // Nominatim Geocoding API - restricted to Italy
+  // 1. FIRST: Check your local configured landmarks
+  const allSites = [
+    ...(typeof ROME_LANDMARKS !== 'undefined' ? ROME_LANDMARKS : []),
+    ...customLandmarks
+  ];
+
+  // Look for a partial match in the landmark name (e.g., typing "colos" will find "Colosseum")
+  const localMatch = allSites.find(site => site.name.toLowerCase().includes(query));
+
+  if (localMatch) {
+    // If we found it locally, select it, fly to it, and stop!
+    setSelectedPoint(localMatch.lat, localMatch.lon);
+    map.flyTo([localMatch.lat, localMatch.lon], 16, { animate: true, duration: 1.2 });
+    return; 
+  }
+
+  // 2. SECOND: If not found locally, fallback to Web API Geocoding
   const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=it&limit=1`;
 
   try {
@@ -620,7 +636,7 @@ async function searchLocation() {
       setSelectedPoint(lat, lng);
       map.flyTo([lat, lng], 16, { animate: true, duration: 1.2 });
     } else {
-      alert("Location not found in Italy. Try being more specific.");
+      alert("Location not found locally or via web search. Try being more specific.");
     }
   } catch (error) {
     console.error("Search error:", error);
