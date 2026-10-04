@@ -10,8 +10,8 @@
   <link rel="manifest" href="manifest.json" />
 
   <!-- Favicon & Apple Touch Icon -->
-<link rel="icon" type="image/png" href="./icon.png" />
-<link rel="apple-touch-icon" href="./icon.png" />
+  <link rel="icon" type="image/png" href="./icon.png" />
+  <link rel="apple-touch-icon" href="./icon.png" />
   
   <!-- Leaflet CSS -->
   <link 
@@ -67,57 +67,84 @@
       background: #f0f0f0;
     }
 
- /* Selected Coordinates Panel */
-.coords-panel {
-  position: absolute;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  background: #ffffff;
-  padding: 8px 10px;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  width: 92vw;
-  max-width: 400px;
-  justify-content: space-between;
-}
+    /* Top Search Panel */
+    .search-panel {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      background: #ffffff;
+      padding: 8px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      display: flex;
+      gap: 6px;
+      width: 90%;
+      max-width: 350px;
+    }
 
-.coords-panel.hidden {
-  display: none;
-}
+    .search-panel input {
+      flex: 1;
+      border: 1px solid #dcdfe6;
+      background: #f8f9fa;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 14px;
+      color: #2c3e50;
+    }
 
-.coords-input {
-  border: 1px solid #dcdfe6;
-  background: #f8f9fa;
-  border-radius: 6px;
-  padding: 6px 4px;
-  font-family: monospace;
-  font-size: 12px;
-  color: #2c3e50;
-  flex: 1;
-  min-width: 0; /* Allows text input to shrink cleanly on narrow screens */
-  text-align: center;
-}
+    /* Selected Coordinates Panel */
+    .coords-panel {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      background: #ffffff;
+      padding: 8px 10px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      width: 96vw;
+      max-width: 450px;
+      justify-content: space-between;
+    }
 
-.btn-icon {
-  background: #f0f2f5;
-  border: 1px solid #dcdfe6;
-  border-radius: 6px;
-  padding: 6px 8px;
-  cursor: pointer;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s ease;
-  text-decoration: none;
-  color: #2c3e50;
-  flex-shrink: 0;
-}
+    .coords-panel.hidden {
+      display: none;
+    }
+
+    .coords-input {
+      border: 1px solid #dcdfe6;
+      background: #f8f9fa;
+      border-radius: 6px;
+      padding: 6px 4px;
+      font-family: monospace;
+      font-size: 12px;
+      color: #2c3e50;
+      flex: 1;
+      min-width: 0;
+      text-align: center;
+    }
+
+    .btn-icon {
+      background: #f0f2f5;
+      border: 1px solid #dcdfe6;
+      border-radius: 6px;
+      padding: 6px 8px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease;
+      text-decoration: none;
+      color: #2c3e50;
+      flex-shrink: 0;
+    }
     
     .btn-icon:hover {
       background: #e4e7ed;
@@ -146,261 +173,122 @@
       font-size: 26px;
     }
 
-    /* Context Menu Popup Styling */
-    .popup-btn {
-      width: 100%;
-      padding: 6px 10px;
-      background: #2c3e50;
-      color: #ffffff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
-    }
+    /* Modal & Panel Styling... (Keeping all your existing modal and filter css) */
+    .overlay-header { display: flex; justify-content: flex-end; }
+    .btn-minimize { padding: 6px 10px; font-size: 12px; }
+    .overlay-content { display: flex; flex-direction: column; gap: 10px; }
+    .overlay-content.minimized { display: none; }
 
-    /* Control Overlay Minimization */
-.controls-overlay {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: flex-end;
-}
+    .modal-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); z-index: 2000; display: flex; align-items: center; justify-content: center; }
+    .modal-backdrop.hidden { display: none; }
+    .modal-card { background: #ffffff; padding: 20px; border-radius: 12px; width: 90%; max-width: 360px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
+    .modal-card input, .modal-card select, .modal-card textarea { width: 100%; padding: 8px 10px; border: 1px solid #dcdfe6; border-radius: 6px; font-family: inherit; font-size: 14px; }
+    .modal-card textarea { resize: vertical; min-height: 60px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+    .modal-actions button { padding: 8px 14px; border: 1px solid #dcdfe6; background: #f0f2f5; border-radius: 6px; cursor: pointer; }
+    .modal-actions .btn-primary { background: #2c3e50; color: white; border: none; }
 
-.overlay-header {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.btn-minimize {
-  padding: 6px 10px;
-  font-size: 12px;
-}
-
-.overlay-content {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.overlay-content.minimized {
-  display: none;
-}
-
-/* Modal Styling */
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-backdrop.hidden {
-  display: none;
-}
-
-.modal-card {
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 360px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-}
-
-.modal-card input, .modal-card select, .modal-card textarea {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid #dcdfe6;
-  border-radius: 6px;
-  font-family: inherit;
-  font-size: 14px;
-}
-
-.modal-card textarea {
-  resize: vertical;
-  min-height: 60px;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.modal-actions button {
-  padding: 8px 14px;
-  border: 1px solid #dcdfe6;
-  background: #f0f2f5;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.modal-actions .btn-primary {
-  background: #2c3e50;
-  color: white;
-  border: none;
-}
-
-    /* Filter Panel Styling */
-.filter-panel {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  z-index: 1000;
-  background: #ffffff;
-  padding: 14px;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-  width: 220px;
-  max-height: 80vh;
-  overflow-y: auto;
-}
-
-.filter-panel.hidden {
-  display: none;
-}
-
-.filter-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: bold;
-  margin-bottom: 10px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid #eee;
-}
-
-.btn-close {
-  background: none;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-  color: #888;
-}
-
-.filter-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.filter-item input {
-  cursor: pointer;
-}
-    
+    .filter-panel { position: absolute; top: 16px; left: 16px; z-index: 1000; background: #ffffff; padding: 14px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); width: 220px; max-height: 80vh; overflow-y: auto; }
+    .filter-panel.hidden { display: none; }
+    .filter-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #eee; }
+    .btn-close { background: none; border: none; font-size: 16px; cursor: pointer; color: #888; }
+    .filter-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 14px; cursor: pointer; }
+    .filter-item input { cursor: pointer; }
   </style>
 </head>
 <body>
 
   <div id="map"></div>
 
-<!-- Controls Overlay -->
-<div class="controls-overlay" id="controlsOverlay">
-  <div class="overlay-header">
-    <button class="btn-control btn-minimize" onclick="toggleOverlayMinimization()">
-      <span id="minIcon">➖</span>
-    </button>
+  <!-- NEW: Top Search Bar -->
+  <div class="search-panel">
+    <input type="text" id="mapSearchInput" placeholder="Search places in Italy..." onkeypress="handleSearchKeypress(event)" />
+    <button class="btn-icon" onclick="searchLocation()" title="Search">🔍</button>
   </div>
-  <div class="overlay-content" id="overlayContent">
-    <button class="btn-control" id="layerToggleBtn" onclick="toggleBaseMap()">
-      🛰️ Satellite
-    </button>
-    <button class="btn-control" onclick="toggleFilterPanel()">
-      ⚙️ Categories
-    </button>
-    <button class="btn-control" onclick="flyToHome()">
-      🏠 Home
-    </button>
-    <button class="btn-control" onclick="resetMapView()">
-      🇮🇹 Center Rome
-    </button>
-    <button class="btn-control" onclick="markUserLocation()">
-      📍 Locate Me
-    </button>
-    
-  </div>
-</div>
 
-  <!-- Category Toggle Drawer -->
-<div id="filterPanel" class="filter-panel hidden">
-  <div class="filter-header">
-    <span>Filter Landmarks</span>
-    <button class="btn-close" onclick="toggleFilterPanel()">✕</button>
-  </div>
-  <div id="filterOptions" class="filter-options"></div>
-</div>
-  
-
-<!-- Coordinates & Action Bar -->
-<div id="coordsPanel" class="coords-panel">
-  <input 
-    type="text" 
-    id="coordsInput" 
-    class="coords-input" 
-    placeholder="Paste coords or click map..." 
-    onkeydown="if(event.key === 'Enter') handleManualCoordInput()" 
-  />
-  <button class="btn-icon" id="goBtn" title="Navigate to Coords" onclick="handleManualCoordInput()">
-    🔍
-  </button>
-  <button class="btn-icon" id="setHomeBtn" title="Set Selected Location as Home" onclick="setHomeFromSelected()">
-    🏠
-  </button>
-  <button class="btn-icon" id="addLandmarkBtn" title="Create Custom Landmark Here" onclick="openAddLandmarkModal()">
-    ➕
-  </button>
-  <button class="btn-icon" id="copyBtn" title="Copy to Clipboard" onclick="copyCoordsToClipboard()">
-    📋
-  </button>
-  <a id="gmapsLink" class="btn-icon" target="_blank" rel="noopener noreferrer" title="Open in Google Maps">
-    🗺️
-  </a>
-</div>
-
-  <!-- New Landmark Modal -->
-<div id="addLandmarkModal" class="modal-backdrop hidden">
-  <div class="modal-card">
-    <h3>Add Custom Landmark</h3>
-    <input type="text" id="customName" placeholder="Name (e.g., Favorite Gelateria)" />
-    <select id="customType">
-      <option value="home">🏠 Home Base</option>
-      <option value="ancient">🏛️ Ancient & Monuments</option>
-      <option value="fountain">⛲ Fountains</option>
-      <option value="vatican">⛪ Churches & Vatican</option>
-      <option value="square">🏟️ Squares & Steps</option>
-      <option value="museum">🖼️ Museums</option>
-      <option value="gallery">🎨 Galleries</option>
-      <option value="park">🌳 Parks & Gardens</option>
-      <option value="district">🍝 Historic Neighborhoods</option>
-      <option value="transit">🚆 Train Stations</option>
-      <option value="mall">🛍️ Malls</option>
-      <option value="default">📍 Custom / Other</option>
-    </select>
-    <textarea id="customDesc" placeholder="Description or notes..."></textarea>
-    <div class="modal-actions">
-      <button onclick="closeAddLandmarkModal()">Cancel</button>
-      <button class="btn-primary" onclick="saveCustomLandmark()">Save Landmark</button>
+  <!-- Controls Overlay -->
+  <div class="controls-overlay" id="controlsOverlay">
+    <div class="overlay-header">
+      <button class="btn-control btn-minimize" onclick="toggleOverlayMinimization()">
+        <span id="minIcon">➖</span>
+      </button>
+    </div>
+    <div class="overlay-content" id="overlayContent">
+      <button class="btn-control" id="layerToggleBtn" onclick="toggleBaseMap()">
+        🛰️ Satellite
+      </button>
+      <button class="btn-control" onclick="toggleFilterPanel()">
+        ⚙️ Categories
+      </button>
+      <button class="btn-control" onclick="flyToHome()">
+        🏠 Home
+      </button>
+      <button class="btn-control" onclick="resetMapView()">
+        🇮🇹 Center Rome
+      </button>
+      <button class="btn-control" onclick="markUserLocation()">
+        📍 Locate Me
+      </button>
     </div>
   </div>
-</div>
+
+  <!-- Category Toggle Drawer -->
+  <div id="filterPanel" class="filter-panel hidden">
+    <div class="filter-header">
+      <span>Filter Landmarks</span>
+      <button class="btn-close" onclick="toggleFilterPanel()">✕</button>
+    </div>
+    <div id="filterOptions" class="filter-options"></div>
+  </div>
+  
+  <!-- Coordinates & Action Bar (Updated with Routing Buttons) -->
+  <div id="coordsPanel" class="coords-panel">
+    <input 
+      type="text" 
+      id="coordsInput" 
+      class="coords-input" 
+      placeholder="Coords..." 
+      onkeydown="if(event.key === 'Enter') handleManualCoordInput()" 
+    />
+    <button class="btn-icon" id="goBtn" title="Navigate to Coords" onclick="handleManualCoordInput()">🔍</button>
+    
+    <!-- NEW: Routing Buttons -->
+    <button class="btn-icon" id="routeBtn" title="Route from My Location" onclick="routeFromCurrentLocation()">🚶</button>
+    <button class="btn-icon" id="clearRouteBtn" title="Clear Route" onclick="clearRoute()">❌</button>
+    
+    <!-- Existing Buttons -->
+    <button class="btn-icon" id="setHomeBtn" title="Set Selected Location as Home" onclick="setHomeFromSelected()">🏠</button>
+    <button class="btn-icon" id="addLandmarkBtn" title="Create Custom Landmark Here" onclick="openAddLandmarkModal()">➕</button>
+    <button class="btn-icon" id="copyBtn" title="Copy to Clipboard" onclick="copyCoordsToClipboard()">📋</button>
+    <a id="gmapsLink" class="btn-icon" target="_blank" rel="noopener noreferrer" title="Open in Google Maps">🗺️</a>
+  </div>
+
+  <!-- New Landmark Modal -->
+  <div id="addLandmarkModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <h3>Add Custom Landmark</h3>
+      <input type="text" id="customName" placeholder="Name (e.g., Favorite Gelateria)" />
+      <select id="customType">
+        <option value="home">🏠 Home Base</option>
+        <option value="ancient">🏛️ Ancient & Monuments</option>
+        <option value="fountain">⛲ Fountains</option>
+        <option value="vatican">⛪ Churches & Vatican</option>
+        <option value="square">🏟️ Squares & Steps</option>
+        <option value="museum">🖼️ Museums</option>
+        <option value="gallery">🎨 Galleries</option>
+        <option value="park">🌳 Parks & Gardens</option>
+        <option value="district">🍝 Historic Neighborhoods</option>
+        <option value="transit">🚆 Train Stations</option>
+        <option value="mall">🛍️ Malls</option>
+        <option value="default">📍 Custom / Other</option>
+      </select>
+      <textarea id="customDesc" placeholder="Description or notes..."></textarea>
+      <div class="modal-actions">
+        <button onclick="closeAddLandmarkModal()">Cancel</button>
+        <button class="btn-primary" onclick="saveCustomLandmark()">Save Landmark</button>
+      </div>
+    </div>
+  </div>
   
   <!-- Leaflet JS -->
   <script 
