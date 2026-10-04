@@ -531,3 +531,114 @@ window.toggleSeen = toggleSeen;
 
 loadLandmarks();
 loadSavedMapType();
+
+// ==========================================
+// NEW FEATURES: ROUTING & SEARCH
+// ==========================================
+
+let currentRouteLayer = null;
+
+// --- ROUTING FEATURE ---
+function routeFromCurrentLocation() {
+  if (!currentCoords) {
+    alert("Please select a destination on the map first.");
+    return;
+  }
+
+  if (!navigator.geolocation) {
+    alert("Geolocation is not supported by your browser.");
+    return;
+  }
+
+  // Get user's current GPS position
+  navigator.geolocation.getCurrentPosition(async (position) => {
+    const userLat = position.coords.latitude;
+    const userLon = position.coords.longitude;
+
+    // Clear existing route if there is one
+    if (currentRouteLayer) {
+      map.removeLayer(currentRouteLayer);
+    }
+
+    // OSRM Public API for walking ('foot')
+    const url = `https://router.project-osrm.org/route/v1/foot/${userLon},${userLat};${currentCoords.lng},${currentCoords.lat}?overview=full&geometries=geojson`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.routes && data.routes.length > 0) {
+        // OSRM returns [longitude, latitude], Leaflet needs [latitude, longitude]
+        const coords = data.routes[0].geometry.coordinates.map(coord => [coord[1], coord[0]]);
+        
+        currentRouteLayer = L.polyline(coords, { color: '#3498db', weight: 5, dashArray: '8, 8' }).addTo(map);
+        map.fitBounds(currentRouteLayer.getBounds(), { padding: [40, 40] });
+      } else {
+        alert("Could not find a pedestrian route. You might be too far away!");
+      }
+    } catch (error) {
+      console.error("Routing error:", error);
+      alert("Failed to fetch directions.");
+    }
+  }, (error) => {
+    console.error("Geolocation error:", error);
+    alert("Unable to get your current location. Please ensure location services are enabled.");
+  }, {
+    enableHighAccuracy: true, 
+    timeout: 10000, 
+    maximumAge: 0 
+  });
+}
+
+function clearRoute() {
+  if (currentRouteLayer) {
+    map.removeLayer(currentRouteLayer);
+    currentRouteLayer = null;
+  }
+}
+
+// --- SEARCH FEATURE ---
+async function searchLocation() {
+  const inputElem = document.getElementById('mapSearchInput');
+  if (!inputElem) return;
+  
+  const query = inputElem.value.trim();
+  if (!query) return;
+
+  // Nominatim Geocoding API - restricted to Italy
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=it&limit=1`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data && data.length > 0) {
+      const result = data[0];
+      const lat = parseFloat(result.lat);
+      const lng = parseFloat(result.lon);
+
+      setSelectedPoint(lat, lng);
+      map.flyTo([lat, lng], 16, { animate: true, duration: 1.2 });
+    } else {
+      alert("Location not found in Italy. Try being more specific.");
+    }
+  } catch (error) {
+    console.error("Search error:", error);
+    alert("Failed to search location.");
+  }
+}
+
+function handleSearchKeypress(event) {
+  if (event.key === 'Enter') {
+    searchLocation();
+  }
+}
+
+// Expose to window so your HTML buttons can click them
+window.routeFromCurrentLocation = routeFromCurrentLocation;
+window.clearRoute = clearRoute;
+window.searchLocation = searchLocation;
+window.handleSearchKeypress = handleSearchKeypress;
+
+
+
