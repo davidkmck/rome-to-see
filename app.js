@@ -532,6 +532,7 @@ window.toggleSeen = toggleSeen;
 loadLandmarks();
 loadSavedMapType();
 
+
 // ==========================================
 // NEW FEATURES: ROUTING & SEARCH
 // ==========================================
@@ -545,49 +546,67 @@ function routeFromCurrentLocation() {
     return;
   }
 
-  if (!navigator.geolocation) {
-    alert("Geolocation is not supported by your browser.");
-    return;
-  }
-
-  // Get user's current GPS position
-  navigator.geolocation.getCurrentPosition(async (position) => {
-    const userLat = position.coords.latitude;
-    const userLon = position.coords.longitude;
-
-    // Clear existing route if there is one
+  // Helper to actually fetch and draw the route once we have a starting point
+  async function fetchAndDrawRoute(startLat, startLon) {
     if (currentRouteLayer) {
       map.removeLayer(currentRouteLayer);
     }
 
-    // OSRM Public API for walking ('foot')
-    const url = `https://router.project-osrm.org/route/v1/foot/${userLon},${userLat};${currentCoords.lng},${currentCoords.lat}?overview=full&geometries=geojson`;
+    const url = `https://router.project-osrm.org/route/v1/foot/${startLon},${startLat};${currentCoords.lng},${currentCoords.lat}?overview=full&geometries=geojson`;
 
     try {
       const response = await fetch(url);
       const data = await response.json();
 
       if (data.routes && data.routes.length > 0) {
-        // OSRM returns [longitude, latitude], Leaflet needs [latitude, longitude]
         const coords = data.routes[0].geometry.coordinates.map(coord => [coord[1], coord[0]]);
-        
         currentRouteLayer = L.polyline(coords, { color: '#3498db', weight: 5, dashArray: '8, 8' }).addTo(map);
         map.fitBounds(currentRouteLayer.getBounds(), { padding: [40, 40] });
       } else {
-        alert("Could not find a pedestrian route. You might be too far away!");
+        alert("Could not find a pedestrian route.");
       }
     } catch (error) {
       console.error("Routing error:", error);
       alert("Failed to fetch directions.");
     }
-  }, (error) => {
-    console.error("Geolocation error:", error);
-    alert("Unable to get your current location. Please ensure location services are enabled.");
-  }, {
-    enableHighAccuracy: true, 
-    timeout: 10000, 
-    maximumAge: 0 
-  });
+  }
+
+  // Helper to fallback to Home Base if location fails
+  function fallbackToHome() {
+    const allSites = [
+      ...(typeof ROME_LANDMARKS !== 'undefined' ? ROME_LANDMARKS : []),
+      ...customLandmarks
+    ];
+    const homeSite = allSites.find(s => s.type === 'home');
+    
+    if (homeSite) {
+      console.log("Location unavailable, falling back to Home Base.");
+      fetchAndDrawRoute(homeSite.lat, homeSite.lon);
+    } else {
+      alert("Location services are disabled and no Home Base is set! Please enable location or set a 🏠 Home Base.");
+    }
+  }
+
+  if (!navigator.geolocation) {
+    fallbackToHome();
+    return;
+  }
+
+  // Try to get GPS, fallback to Home if it fails or times out
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      fetchAndDrawRoute(position.coords.latitude, position.coords.longitude);
+    }, 
+    (error) => {
+      console.warn("Geolocation error:", error);
+      fallbackToHome();
+    }, 
+    {
+      enableHighAccuracy: true, 
+      timeout: 5000, // Reduced to 5s so it falls back to Home faster if GPS is stuck
+      maximumAge: 0 
+    }
+  );
 }
 
 function clearRoute() {
@@ -597,32 +616,36 @@ function clearRoute() {
   }
 }
 
+
 // --- SEARCH FEATURE ---
 async function searchLocation() {
   const inputElem = document.getElementById('mapSearchInput');
   if (!inputElem) return;
   
-  const query = inputElem.value.trim().toLowerCase(); // Convert to lowercase for matching
+  const query = inputElem.value.trim().toLowerCase();
   if (!query) return;
 
-  // 1. FIRST: Check your local configured landmarks
+  // 1. FIRST: Check local configured landmarks
   const allSites = [
     ...(typeof ROME_LANDMARKS !== 'undefined' ? ROME_LANDMARKS : []),
     ...customLandmarks
   ];
 
-  // Look for a partial match in the landmark name (e.g., typing "colos" will find "Colosseum")
   const localMatch = allSites.find(site => site.name.toLowerCase().includes(query));
 
   if (localMatch) {
-    // If we found it locally, select it, fly to it, and stop!
     setSelectedPoint(localMatch.lat, localMatch.lon);
     map.flyTo([localMatch.lat, localMatch.lon], 16, { animate: true, duration: 1.2 });
     return; 
   }
 
-  // 2. SECOND: If not found locally, fallback to Web API Geocoding
-  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=it&limit=1`;
+  // 2. SECOND: Fallback to Web API Geocoding, restricted to Greater Rome
+  // Append Rome context to the query to force Nominatim to prioritize Rome results
+  const searchQuery = query.includes('rome') || query.includes('roma') 
+    ? query 
+    : `${query}, Rome, Italy`;
+
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1`;
 
   try {
     const response = await fetch(url);
@@ -636,7 +659,7 @@ async function searchLocation() {
       setSelectedPoint(lat, lng);
       map.flyTo([lat, lng], 16, { animate: true, duration: 1.2 });
     } else {
-      alert("Location not found locally or via web search. Try being more specific.");
+      alert("Location not found in Greater Rome. Try being more specific.");
     }
   } catch (error) {
     console.error("Search error:", error);
