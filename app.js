@@ -546,6 +546,60 @@ function routeFromCurrentLocation() {
     return;
   }
 
+// Helper to actually fetch and draw the route once we have a starting point
+  async function fetchAndDrawRoute(startLat, startLon) {
+    if (currentRouteLayer) {
+      map.removeLayer(currentRouteLayer);
+    }
+
+    const url = `https://router.project-osrm.org/route/v1/foot/${startLon},${startLat};${currentCoords.lng},${currentCoords.lat}?overview=full&geometries=geojson`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.routes && data.routes.length > 0) {
+        const route = data.routes[0];
+        const coords = route.geometry.coordinates.map(coord => [coord[1], coord[0]]);
+        
+        currentRouteLayer = L.polyline(coords, { color: '#3498db', weight: 5, dashArray: '8, 8' }).addTo(map);
+        map.fitBounds(currentRouteLayer.getBounds(), { padding: [40, 40] });
+
+        // Calculate time (seconds to minutes) and distance (meters to km)
+        const durationMins = Math.round(route.duration / 60);
+        const distanceKm = (route.distance / 1000).toFixed(2);
+        
+        // Format time string
+        let timeStr = durationMins > 60 
+          ? `${Math.floor(durationMins / 60)} hr ${durationMins % 60} min` 
+          : `${durationMins} min`;
+
+        // Create the info HTML
+        const infoHtml = `<div style="text-align:center; padding: 4px;">
+                            <strong style="font-size:14px;">🚶 Route Info</strong><br/>
+                            <span style="font-size:13px;">⏱️ ${timeStr}</span><br/>
+                            <span style="font-size:13px;">📏 ${distanceKm} km</span>
+                          </div>`;
+
+        // Automatically open a popup at the destination with the route details
+        L.popup({ closeButton: true, offset: [0, -30] })
+          .setLatLng([currentCoords.lat, currentCoords.lng])
+          .setContent(infoHtml)
+          .openOn(map);
+          
+        // Bind the same info to the route line itself so it can be clicked again if the popup closes
+        currentRouteLayer.bindPopup(infoHtml);
+
+      } else {
+        alert("Could not find a pedestrian route.");
+      }
+    } catch (error) {
+      console.error("Routing error:", error);
+      alert("Failed to fetch directions.");
+    }
+  }
+  
+  /***
   // Helper to actually fetch and draw the route once we have a starting point
   async function fetchAndDrawRoute(startLat, startLon) {
     if (currentRouteLayer) {
@@ -608,7 +662,8 @@ function routeFromCurrentLocation() {
     }
   );
 }
-
+*/
+  
 function clearRoute() {
   if (currentRouteLayer) {
     map.removeLayer(currentRouteLayer);
